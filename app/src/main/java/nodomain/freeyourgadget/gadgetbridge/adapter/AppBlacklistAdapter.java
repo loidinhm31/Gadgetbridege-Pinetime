@@ -108,51 +108,41 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
         holder.blacklist_checkbox.setChecked(GBApplication.appIsNotifBlacklisted(appInfo.packageName));
         holder.blacklist_pebble_checkbox.setChecked(GBApplication.appIsPebbleBlacklisted(packageNameToPebbleMsgSender(appInfo.packageName)));
 
-        holder.blacklist_pebble_checkbox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((CheckedTextView) view).toggle();
-                if (((CheckedTextView) view).isChecked()) {
-                    GBApplication.addAppToPebbleBlacklist(appInfo.packageName);
-                } else {
-                    GBApplication.removeFromAppsPebbleBlacklist(appInfo.packageName);
-                }
-
+        holder.blacklist_pebble_checkbox.setOnClickListener(view -> {
+            ((CheckedTextView) view).toggle();
+            if (((CheckedTextView) view).isChecked()) {
+                GBApplication.addAppToPebbleBlacklist(appInfo.packageName);
+            } else {
+                GBApplication.removeFromAppsPebbleBlacklist(appInfo.packageName);
             }
+
         });
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CheckedTextView checkBox = (v.findViewById(R.id.item_checkbox));
-                checkBox.toggle();
-                if (checkBox.isChecked()) {
-                    GBApplication.addAppToNotifBlacklist(appInfo.packageName);
-                } else {
-                    GBApplication.removeFromAppsNotifBlacklist(appInfo.packageName);
-                }
+        holder.itemView.setOnClickListener(v -> {
+            CheckedTextView checkBox = (v.findViewById(R.id.item_checkbox));
+            checkBox.toggle();
+            if (checkBox.isChecked()) {
+                GBApplication.addAppToNotifBlacklist(appInfo.packageName);
+            } else {
+                GBApplication.removeFromAppsNotifBlacklist(appInfo.packageName);
             }
         });
 
-        holder.btnConfigureApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (GBApplication.getPrefs().getString("notification_list_is_blacklist", "true").equals("true")) {
-                    if (holder.blacklist_checkbox.isChecked()) {
-                        GB.toast(mContext, mContext.getString(R.string.toast_app_must_not_be_selected), Toast.LENGTH_SHORT, GB.INFO);
-                    } else {
-                        Intent intentStartNotificationFilterActivity = new Intent(mContext, NotificationFilterActivity.class);
-                        intentStartNotificationFilterActivity.putExtra(STRING_EXTRA_PACKAGE_NAME, appInfo.packageName);
-                        mContext.startActivity(intentStartNotificationFilterActivity);
-                    }
+        holder.btnConfigureApp.setOnClickListener(view -> {
+            if (GBApplication.getPrefs().getString("notification_list_is_blacklist", "true").equals("true")) {
+                if (holder.blacklist_checkbox.isChecked()) {
+                    GB.toast(mContext, mContext.getString(R.string.toast_app_must_not_be_selected), Toast.LENGTH_SHORT, GB.INFO);
                 } else {
-                    if (holder.blacklist_checkbox.isChecked()) {
-                        Intent intentStartNotificationFilterActivity = new Intent(mContext, NotificationFilterActivity.class);
-                        intentStartNotificationFilterActivity.putExtra(STRING_EXTRA_PACKAGE_NAME, appInfo.packageName);
-                        mContext.startActivity(intentStartNotificationFilterActivity);
-                    } else {
-                        GB.toast(mContext, mContext.getString(R.string.toast_app_must_be_selected), Toast.LENGTH_SHORT, GB.INFO);
-                    }
+                    Intent intentStartNotificationFilterActivity = new Intent(mContext, NotificationFilterActivity.class);
+                    intentStartNotificationFilterActivity.putExtra(STRING_EXTRA_PACKAGE_NAME, appInfo.packageName);
+                    mContext.startActivity(intentStartNotificationFilterActivity);
+                }
+            } else {
+                if (holder.blacklist_checkbox.isChecked()) {
+                    Intent intentStartNotificationFilterActivity = new Intent(mContext, NotificationFilterActivity.class);
+                    intentStartNotificationFilterActivity.putExtra(STRING_EXTRA_PACKAGE_NAME, appInfo.packageName);
+                    mContext.startActivity(intentStartNotificationFilterActivity);
+                } else {
+                    GB.toast(mContext, mContext.getString(R.string.toast_app_must_be_selected), Toast.LENGTH_SHORT, GB.INFO);
                 }
             }
         });

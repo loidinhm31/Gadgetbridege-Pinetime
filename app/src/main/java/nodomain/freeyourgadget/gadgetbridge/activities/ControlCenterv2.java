@@ -18,6 +18,7 @@
 package nodomain.freeyourgadget.gadgetbridge.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -106,7 +107,7 @@ public class ControlCenterv2 extends AppCompatActivity
     private FloatingActionButton fab;
     private boolean isLanguageInvalid = false;
     List<GBDevice> deviceList;
-    private  HashMap<String,long[]> deviceActivityHashMap = new HashMap();
+    private final HashMap<String,long[]> deviceActivityHashMap = new HashMap<>();
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -170,13 +171,6 @@ public class ControlCenterv2 extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        /* This sucks but for the play store we're not allowed a donation link. Instead for
-        the Bangle.js Play Store app we put a message in the About dialog via @string/about_description */
-        if (BuildConfig.FLAVOR == "banglejs") {
-            MenuItemImpl v = (MenuItemImpl) ((NavigationView) drawer.getChildAt(1)).getMenu().findItem(R.id.donation_link);
-            if (v != null) v.setVisible(false);
-        }
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -198,50 +192,9 @@ public class ControlCenterv2 extends AppCompatActivity
         deviceListView.setAdapter(this.mGBDeviceAdapter);
 
         fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchDiscoveryActivity();
-            }
-        });
+        fab.setOnClickListener(v -> launchDiscoveryActivity());
 
         showFabIfNeccessary();
-
-        /* uncomment to enable fixed-swipe to reveal more actions
-
-        ItemTouchHelper swipeToDismissTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
-                ItemTouchHelper.LEFT , ItemTouchHelper.RIGHT) {
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                if(dX>50)
-                    dX = 50;
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
-            }
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                GB.toast(getBaseContext(), "onMove", Toast.LENGTH_LONG, GB.ERROR);
-
-                return false;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                GB.toast(getBaseContext(), "onSwiped", Toast.LENGTH_LONG, GB.ERROR);
-
-            }
-
-            @Override
-            public void onChildDrawOver(Canvas c, RecyclerView recyclerView,
-                                        RecyclerView.ViewHolder viewHolder, float dX, float dY,
-                                        int actionState, boolean isCurrentlyActive) {
-            }
-        });
-
-        swipeToDismissTouchHelper.attachToRecyclerView(deviceListView);
-        */
-
         registerForContextMenu(deviceListView);
 
         IntentFilter filterLocal = new IntentFilter();

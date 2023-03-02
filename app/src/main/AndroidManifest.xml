@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
@@ -55,7 +56,7 @@
         android:required="true" />
     <uses-feature
         android:name="android.hardware.bluetooth_le"
-        android:required="false" />
+        android:required="true" />
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
@@ -77,7 +78,8 @@
             android:name=".activities.ControlCenterv2"
             android:label="@string/title_activity_controlcenter"
             android:theme="@style/SplashTheme"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:exported="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -103,14 +105,6 @@
             android:label="@string/activity_prefs_discovery_pairing"
             android:parentActivityName=".activities.SettingsActivity" />
         <activity
-            android:name=".devices.miband.MiBandPreferencesActivity"
-            android:label="@string/preferences_miband_settings"
-            android:parentActivityName=".activities.SettingsActivity" />
-        <activity
-            android:name=".devices.zetime.ZeTimePreferenceActivity"
-            android:label="@string/zetime_title_settings"
-            android:parentActivityName=".activities.SettingsActivity" />
-        <activity
             android:name=".activities.ActivitySummariesActivity"
             android:label="@string/activity_summaries"
             android:parentActivityName=".activities.ControlCenterv2" />
@@ -127,14 +121,12 @@
             android:name=".activities.CalBlacklistActivity"
             android:label="@string/title_activity_calblacklist"
             android:parentActivityName=".activities.SettingsActivity" />
-        <activity
-            android:name=".devices.vesc.VescControlActivity"
-            android:label="@string/devicetype_vesc"
-            android:parentActivityName=".activities.ControlCenterv2" />
+
         <activity
             android:name=".activities.FwAppInstallerActivity"
             android:label="@string/title_activity_fw_app_insaller"
-            android:parentActivityName=".activities.ControlCenterv2">
+            android:parentActivityName=".activities.ControlCenterv2"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -355,7 +347,8 @@
         <service
             android:name=".externalevents.NotificationListener"
             android:label="@string/app_name"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
@@ -368,7 +361,8 @@
 
         <receiver
             android:name=".externalevents.GenericWeatherReceiver"
-            android:enabled="true">
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.ACTION_GENERIC_WEATHER" />
             </intent-filter>
@@ -376,13 +370,15 @@
 
         <receiver
             android:name=".externalevents.WeatherNotificationReceiver"
-            android:enabled="true">
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="ru.gelin.android.weather.notification.ACTION_WEATHER_UPDATE_2" />
             </intent-filter>
         </receiver>
 
-        <activity android:name=".externalevents.WeatherNotificationConfig">
+        <activity android:name=".externalevents.WeatherNotificationConfig"
+            android:exported="true">
             <intent-filter>
                 <action android:name="ru.gelin.android.weather.notification.ACTION_WEATHER_SKIN_PREFERENCES" />
             </intent-filter>
@@ -390,7 +386,8 @@
 
         <receiver
             android:name=".externalevents.AutoStartReceiver"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -401,7 +398,7 @@
         <receiver
             android:name=".externalevents.BluetoothStateChangeReceiver"
             android:exported="true"
-            android:permission="android.permission.BLUETOOTH,android.permission.BLUETOOTH_ADMIN">
+            android:permission="android.permission.BLUETOOTH_ADMIN">
             <intent-filter>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
                 <action android:name="android.bluetooth.adapter.action.CONNECTION_STATE_CHANGED" />
@@ -483,29 +480,7 @@
         <activity
             android:name=".activities.AndroidPairingActivity"
             android:label="@string/title_activity_android_pairing" />
-        <activity
-            android:name=".devices.banglejs.AppsManagementActivity"
-            android:label="@string/title_activity_appmanager"
-            android:launchMode="singleTop"
-            android:parentActivityName=".activities.ControlCenterv2" />
-        <activity
-            android:name=".devices.miband.MiBandPairingActivity"
-            android:label="@string/title_activity_mi_band_pairing" />
-        <activity
-            android:name=".devices.pebble.PebblePairingActivity"
-            android:label="@string/title_activity_pebble_pairing" />
-        <activity
-            android:name=".devices.watch9.Watch9PairingActivity"
-            android:label="@string/title_activity_watch9_pairing" />
-        <activity
-            android:name=".devices.watch9.Watch9CalibrationActivity"
-            android:label="@string/title_activity_watch9_calibration" />
-        <activity
-            android:name=".devices.lenovo.LenovoWatchPairingActivity"
-            android:label="@string/title_activity_watch9_pairing" />
-        <activity
-            android:name=".devices.lenovo.LenovoWatchCalibrationActivity"
-            android:label="@string/title_activity_LenovoWatch_calibration" />
+
         <activity
             android:name=".activities.charts.ChartsActivity"
             android:label="@string/title_activity_charts"
@@ -573,7 +548,8 @@
 
         <receiver
             android:name=".SleepAlarmWidget"
-            android:label="@string/appwidget_sleep_alarm_widget_label">
+            android:label="@string/appwidget_sleep_alarm_widget_label"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="nodomain.freeyourgadget.gadgetbridge.SLEEP_ALARM_WIDGET_CLICK" />
@@ -585,7 +561,8 @@
         </receiver>
         <receiver
             android:name=".Widget"
-            android:label="@string/widget_listing_label">
+            android:label="@string/widget_listing_label"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
@@ -604,13 +581,15 @@
             android:launchMode="singleInstance"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
 
-        <activity android:name=".activities.WidgetConfigurationActivity">
+        <activity android:name=".activities.WidgetConfigurationActivity"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.SleepAlarmWidgetConfigurationActivity">
+        <activity android:name=".activities.SleepAlarmWidgetConfigurationActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
@@ -622,7 +601,8 @@
             android:clearTaskOnLaunch="true"
             android:label="@string/app_configure"
             android:launchMode="singleTask"
-            android:parentActivityName=".activities.appmanager.AppManagerActivity">
+            android:parentActivityName=".activities.appmanager.AppManagerActivity"
+            android:exported="true">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="nodomain.freeyourgadget.gadgetbridge.activities.ControlCenterv2" />
@@ -638,78 +618,15 @@
         </activity>
 
         <activity
-            android:name=".devices.qhybrid.ConfigActivity"
-            android:label="@string/qhybrid_title_watchface"
-            android:exported="true"
-            android:parentActivityName=".activities.ControlCenterv2" />
-        <activity
-            android:name=".devices.qhybrid.QHybridAppChoserActivity"
-            android:label="@string/qhybrid_title_apps"
-            android:exported="true"
-            android:parentActivityName=".devices.qhybrid.ConfigActivity" />
-        <activity
-            android:name=".devices.qhybrid.HRConfigActivity"
-            android:label="@string/qhybrid_title_watchface"
-            android:exported="true"
-            android:parentActivityName=".activities.ControlCenterv2" />
-        <activity android:name=".devices.qhybrid.WidgetSettingsActivity"
-            android:label="@string/add_widget"
-            android:parentActivityName=".devices.qhybrid.HRConfigActivity" />
-        <activity
-            android:name=".devices.qhybrid.ImageEditActivity"
-            android:label="@string/qhybrid_title_background_image"
-            android:exported="true"
-            android:parentActivityName=".devices.qhybrid.HRConfigActivity" />
-        <activity
-            android:name=".devices.qhybrid.FileManagementActivity"
-            android:label="@string/qhybrid_title_file_management"
-            android:exported="true"
-            android:parentActivityName=".devices.qhybrid.HRConfigActivity"/>
-        <activity
-            android:name=".devices.qhybrid.AppsManagementActivity"
-            android:label="@string/qhybrid_title_apps_management"
-            android:exported="true"
-            android:parentActivityName=".devices.qhybrid.HRConfigActivity" />
-        <activity
-            android:name=".devices.qhybrid.CalibrationActivity"
-            android:label="@string/qhybrid_title_calibration"
-            android:parentActivityName=".devices.qhybrid.HRConfigActivity" />
-        <activity
-            android:name=".devices.qhybrid.CommuteActionsActivity"
-            android:label="@string/qhybrid_pref_title_actions"
-            android:parentActivityName=".devices.qhybrid.HRConfigActivity" />
-        <activity
-            android:name=".devices.qhybrid.HybridHRWatchfaceDesignerActivity"
-            android:label="@string/qhybrid_title_watchface_designer"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"
-            android:parentActivityName=".activities.appmanager.AppManagerActivity" />
-        <activity
-            android:name=".devices.qhybrid.HybridHRWatchfaceSettingsActivity"
-            android:label="@string/watchface_dialog_title_settings"
-            android:parentActivityName=".devices.qhybrid.HybridHRWatchfaceDesignerActivity" />
-        <activity
-            android:name=".devices.qhybrid.HybridHRWatchfaceWidgetActivity"
-            android:label="@string/watchface_dialog_title_widget"
-            android:parentActivityName=".devices.qhybrid.HybridHRWatchfaceDesignerActivity" />
-
-        <activity
-            android:name=".devices.um25.Activity.DataActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".devices.supercars.ControlActivity"
-            android:exported="true" />
-
-        <activity
             android:name=".devices.binary_sensor.activity.DataActivity"
-            android:exported="true" />
+            android:exported="false" />
 
         <activity
             android:name=".activities.GpxReceiverActivity"
             android:label="@string/gpx_receiver_activity_title"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden">
+            android:screenOrientation="fullSensor"
+            android:windowSoftInputMode="stateHidden"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />

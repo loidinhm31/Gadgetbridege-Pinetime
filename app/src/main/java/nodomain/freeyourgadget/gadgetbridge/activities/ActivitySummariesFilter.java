@@ -178,59 +178,47 @@ public class ActivitySummariesFilter extends AbstractGBActivity {
         });
 
 
-        reset_filter_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activityFilter = 0;
-                dateFromFilter = 0;
-                dateToFilter = 0;
-                nameContainsFilter = "";
-                filterKindSpinner.setSelection(0);
-                itemsFilter = null;
-                deviceFilterSpinner.setSelection(filterDevicesAdapter.getItemPositionForSelection(getDeviceById(initial_deviceFilter)));
-                quick_filter_period_select.setSelection(0);
-                update_filter_fields();
-            }
+        reset_filter_button.setOnClickListener(v -> {
+            activityFilter = 0;
+            dateFromFilter = 0;
+            dateToFilter = 0;
+            nameContainsFilter = "";
+            filterKindSpinner.setSelection(0);
+            itemsFilter = null;
+            deviceFilterSpinner.setSelection(filterDevicesAdapter.getItemPositionForSelection(getDeviceById(initial_deviceFilter)));
+            quick_filter_period_select.setSelection(0);
+            update_filter_fields();
         });
 
-        apply_filter_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String text = nameContainsFilterdata.getText().toString();
-                if (text != null && text.length() > 0) {
-                    nameContainsFilter = text;
-                }
-                Intent intent = new Intent();
-                Bundle bundle = new Bundle();
-                bundle.putInt("activityFilter", activityFilter);
-                bundle.putSerializable("itemsFilter", (Serializable) itemsFilter);
-                bundle.putLong("dateFromFilter", dateFromFilter);
-                bundle.putLong("dateToFilter", dateToFilter);
-                bundle.putLong("deviceFilter", deviceFilter);
-                bundle.putString("nameContainsFilter", nameContainsFilter);
-                intent.putExtras(bundle);
-                setResult(1, intent);
-                finish();
+        apply_filter_button.setOnClickListener(v -> {
+            String text = nameContainsFilterdata.getText().toString();
+            if (text != null && text.length() > 0) {
+                nameContainsFilter = text;
             }
+            Intent intent = new Intent();
+            Bundle bundle1 = new Bundle();
+            bundle1.putInt("activityFilter", activityFilter);
+            bundle1.putSerializable("itemsFilter", (Serializable) itemsFilter);
+            bundle1.putLong("dateFromFilter", dateFromFilter);
+            bundle1.putLong("dateToFilter", dateToFilter);
+            bundle1.putLong("deviceFilter", deviceFilter);
+            bundle1.putString("nameContainsFilter", nameContainsFilter);
+            intent.putExtras(bundle1);
+            setResult(1, intent);
+            finish();
         });
 
 
-        filterfrom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDate(DATE_FILTER_FROM, dateFromFilter);
-                quick_filter_period_select.setSelection(0);
+        filterfrom.setOnClickListener(v -> {
+            getDate(DATE_FILTER_FROM, dateFromFilter);
+            quick_filter_period_select.setSelection(0);
 
 
-            }
         });
 
-        filterto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDate(DATE_FILTER_TO, dateToFilter);
-                quick_filter_period_select.setSelection(0);
-            }
+        filterto.setOnClickListener(v -> {
+            getDate(DATE_FILTER_TO, dateToFilter);
+            quick_filter_period_select.setSelection(0);
         });
 
     }

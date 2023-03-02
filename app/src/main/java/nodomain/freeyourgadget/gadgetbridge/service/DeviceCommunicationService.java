@@ -20,6 +20,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.service;
 
+import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.*;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -62,7 +64,6 @@ import nodomain.freeyourgadget.gadgetbridge.externalevents.CalendarReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.DeviceSettingsReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.GenericWeatherReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.IntentApiReceiver;
-import nodomain.freeyourgadget.gadgetbridge.externalevents.LineageOsWeatherReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.MusicPlaybackReceiver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.OmniJawsObserver;
 import nodomain.freeyourgadget.gadgetbridge.externalevents.PebbleReceiver;
@@ -89,118 +90,12 @@ import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper;
 import nodomain.freeyourgadget.gadgetbridge.util.EmojiConverter;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
-import nodomain.freeyourgadget.gadgetbridge.util.language.LanguageUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
+import nodomain.freeyourgadget.gadgetbridge.util.language.LanguageUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.language.Transliterator;
 
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_ADD_CALENDAREVENT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_APP_CONFIGURE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_APP_REORDER;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_CALLSTATE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_CONNECT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_DELETEAPP;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_DELETE_CALENDAREVENT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_DELETE_NOTIFICATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_DISCONNECT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_ENABLE_HEARTRATE_SLEEP_SUPPORT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_ENABLE_REALTIME_HEARTRATE_MEASUREMENT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_ENABLE_REALTIME_STEPS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_FETCH_RECORDED_DATA;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_FIND_DEVICE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_HEARTRATE_TEST;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_INSTALL;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_NOTIFICATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_PHONE_FOUND;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_POWER_OFF;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_READ_CONFIGURATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_REQUEST_APPINFO;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_REQUEST_DEVICEINFO;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_REQUEST_SCREENSHOT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_RESET;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SEND_CONFIGURATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SEND_WEATHER;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SETCANNEDMESSAGES;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SETMUSICINFO;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SETMUSICSTATE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SETTIME;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_ALARMS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_CONSTANT_VIBRATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_FM_FREQUENCY;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_HEARTRATE_MEASUREMENT_INTERVAL;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_GPS_LOCATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_LED_COLOR;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_PHONE_VOLUME;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_REMINDERS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_SET_WORLD_CLOCKS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_START;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_STARTAPP;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_DOWNLOADAPP;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.ACTION_TEST_NEW_FUNCTION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_ALARMS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_APP_CONFIG;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_APP_CONFIG_ID;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_APP_START;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_APP_UUID;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_BOOLEAN_ENABLE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_DESCRIPTION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_DURATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_ID;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_LOCATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_TIMESTAMP;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_ALLDAY;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_TITLE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_TYPE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_CALNAME;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALENDAREVENT_COLOR;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALL_COMMAND;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALL_DISPLAYNAME;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALL_DNDSUPPRESSED;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CALL_PHONENUMBER;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CANNEDMESSAGES;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CANNEDMESSAGES_TYPE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CONFIG;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_CONNECT_FIRST_TIME;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_FIND_START;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_FM_FREQUENCY;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_GPS_LOCATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_INTERVAL_SECONDS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_LED_COLOR;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_ALBUM;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_ARTIST;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_DURATION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_POSITION;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_RATE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_REPEAT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_SHUFFLE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_STATE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_TRACK;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_TRACKCOUNT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_MUSIC_TRACKNR;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_ACTIONS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_BODY;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_DNDSUPPRESSED;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_FLAGS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_ICONID;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_ID;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_PEBBLE_COLOR;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_PHONENUMBER;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_SENDER;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_SOURCEAPPID;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_SOURCENAME;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_SUBJECT;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_TITLE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_NOTIFICATION_TYPE;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_PHONE_VOLUME;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_RECORDED_DATA_TYPES;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_REMINDERS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_RESET_FLAGS;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_URI;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_VIBRATION_INTENSITY;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_WEATHER;
-import static nodomain.freeyourgadget.gadgetbridge.model.DeviceService.EXTRA_WORLD_CLOCKS;
-
 public class DeviceCommunicationService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
-    public static class DeviceStruct{
+    public static class DeviceStruct {
         private GBDevice device;
         private DeviceCoordinator coordinator;
         private DeviceSupport deviceSupport;
@@ -230,7 +125,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         }
     }
 
-    private class FeatureSet{
+    private static class FeatureSet {
         private boolean supportsWeather = false;
         private boolean supportsActivityDataFetching = false;
         private boolean supportsCalendarEvents = false;
@@ -268,23 +163,23 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
             this.supportsMusicInfo = supportsMusicInfo;
         }
 
-        public void logicalOr(DeviceCoordinator operand){
-            if(operand.supportsCalendarEvents()){
+        public void logicalOr(DeviceCoordinator operand) {
+            if (operand.supportsCalendarEvents()) {
                 setSupportsCalendarEvents(true);
             }
-            if(operand.supportsWeather()){
+            if (operand.supportsWeather()) {
                 setSupportsWeather(true);
             }
-            if(operand.supportsActivityDataFetching()){
+            if (operand.supportsActivityDataFetching()) {
                 setSupportsActivityDataFetching(true);
             }
-            if(operand.supportsMusicInfo()){
+            if (operand.supportsMusicInfo()) {
                 setSupportsMusicInfo(true);
             }
         }
     }
 
-    public static class DeviceNotFoundException extends GBException{
+    public static class DeviceNotFoundException extends GBException {
         private final String address;
 
         public DeviceNotFoundException(GBDevice device) {
@@ -320,40 +215,28 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     private BluetoothPairingRequestReceiver mBlueToothPairingRequestReceiver = null;
     private AlarmClockReceiver mAlarmClockReceiver = null;
     private GBAutoFetchReceiver mGBAutoFetchReceiver = null;
-    private AutoConnectIntervalReceiver mAutoConnectInvervalReceiver= null;
+    private AutoConnectIntervalReceiver mAutoConnectInvervalReceiver = null;
 
     private AlarmReceiver mAlarmReceiver = null;
-    private List<CalendarReceiver> mCalendarReceiver = new ArrayList<>();
+    private final List<CalendarReceiver> mCalendarReceiver = new ArrayList<>();
     private CMWeatherReceiver mCMWeatherReceiver = null;
-    private LineageOsWeatherReceiver mLineageOsWeatherReceiver = null;
     private TinyWeatherForecastGermanyReceiver mTinyWeatherForecastGermanyReceiver = null;
     private GenericWeatherReceiver mGenericWeatherReceiver = null;
     private OmniJawsObserver mOmniJawsObserver = null;
     private final DeviceSettingsReceiver deviceSettingsReceiver = new DeviceSettingsReceiver();
     private final IntentApiReceiver intentApiReceiver = new IntentApiReceiver();
 
-    private final String[] mMusicActions = {
-            "com.android.music.metachanged",
-            "com.android.music.playstatechanged",
-            "com.android.music.queuechanged",
-            "com.android.music.playbackcomplete",
-            "net.sourceforge.subsonic.androidapp.EVENT_META_CHANGED",
-            "com.maxmpz.audioplayer.TPOS_SYNC",
-            "com.maxmpz.audioplayer.STATUS_CHANGED",
-            "com.maxmpz.audioplayer.PLAYING_MODE_CHANGED",
-            "com.spotify.music.metadatachanged",
-            "com.spotify.music.playbackstatechanged"
-    };
+    private final String[] mMusicActions = {"com.android.music.metachanged", "com.android.music.playstatechanged", "com.android.music.queuechanged", "com.android.music.playbackcomplete", "net.sourceforge.subsonic.androidapp.EVENT_META_CHANGED", "com.maxmpz.audioplayer.TPOS_SYNC", "com.maxmpz.audioplayer.STATUS_CHANGED", "com.maxmpz.audioplayer.PLAYING_MODE_CHANGED", "com.spotify.music.metadatachanged", "com.spotify.music.playbackstatechanged"};
 
     private final String COMMAND_BLUETOOTH_CONNECT = "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECT";
-    private final String ACTION_DEVICE_CONNECTED = "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED";
     private boolean allowBluetoothIntentApi = false;
 
-    private void sendDeviceConnectedBroadcast(String address){
-        if(!allowBluetoothIntentApi){
+    private void sendDeviceConnectedBroadcast(String address) {
+        if (!allowBluetoothIntentApi) {
             GB.log("not sending API event due to settings", GB.INFO, null);
             return;
         }
+        String ACTION_DEVICE_CONNECTED = "nodomain.freeyourgadget.gadgetbridge.BLUETOOTH_CONNECTED";
         Intent intent = new Intent(ACTION_DEVICE_CONNECTED);
         intent.putExtra("EXTRA_DEVICE_ADDRESS", address);
 
@@ -363,44 +246,39 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     BroadcastReceiver bluetoothCommandReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()){
+            switch (intent.getAction()) {
                 case COMMAND_BLUETOOTH_CONNECT:
-                    if(!allowBluetoothIntentApi){
+                    if (!allowBluetoothIntentApi) {
                         GB.log("Connection API not allowed in settings", GB.ERROR, null);
                         return;
                     }
                     Bundle extras = intent.getExtras();
-                    if(extras == null){
+                    if (extras == null) {
                         GB.log("no extras provided in Intent", GB.ERROR, null);
                         return;
                     }
                     String address = extras.getString("EXTRA_DEVICE_ADDRESS", "");
-                    if(address.isEmpty()){
+                    if (address.isEmpty()) {
                         GB.log("no bluetooth address provided in Intent", GB.ERROR, null);
                         return;
                     }
-                    if(isDeviceConnected(address)){
+                    if (isDeviceConnected(address)) {
                         GB.log(String.format("device %s already connected", address), GB.INFO, null);
                         sendDeviceConnectedBroadcast(address);
                         return;
                     }
 
                     List<GBDevice> devices = GBApplication.app().getDeviceManager().getDevices();
-                    GBDevice targetDevice = GBApplication
-                            .app()
-                            .getDeviceManager()
-                            .getDeviceByAddress(address);
+                    GBDevice targetDevice = GBApplication.app().getDeviceManager().getDeviceByAddress(address);
 
-                    if(targetDevice == null){
+                    if (targetDevice == null) {
                         GB.log(String.format("device %s not registered", address), GB.ERROR, null);
                         return;
                     }
 
                     GB.log(String.format("connecting to %s", address), GB.INFO, null);
 
-                    GBApplication
-                            .deviceService(targetDevice)
-                            .connect();
+                    GBApplication.deviceService(targetDevice).connect();
 
                     break;
             }
@@ -425,12 +303,12 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if(GBDevice.ACTION_DEVICE_CHANGED.equals(action)){
+            if (GBDevice.ACTION_DEVICE_CHANGED.equals(action)) {
                 GBDevice device = intent.getParcelableExtra(GBDevice.EXTRA_DEVICE);
 
                 // create a new instance of the changed devices coordinator, in case it's capabilities changed
                 DeviceStruct cachedStruct = getDeviceStructOrNull(device);
-                if(cachedStruct != null) {
+                if (cachedStruct != null) {
                     cachedStruct.setDevice(device);
                     DeviceCoordinator newCoordinator = DeviceHelper.getInstance().getCoordinator(device);
                     cachedStruct.setCoordinator(newCoordinator);
@@ -439,7 +317,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
 
                 GBDevice.DeviceUpdateSubject subject = (GBDevice.DeviceUpdateSubject) intent.getSerializableExtra(GBDevice.EXTRA_UPDATE_SUBJECT);
 
-                if(subject == GBDevice.DeviceUpdateSubject.DEVICE_STATE && device.isInitialized()){
+                if (subject == GBDevice.DeviceUpdateSubject.DEVICE_STATE && device.isInitialized()) {
                     LOG.debug("device state update reason");
                     sendDeviceConnectedBroadcast(device.getAddress());
                 }
@@ -447,26 +325,26 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         }
     };
 
-    private void updateReceiversState(){
+    private void updateReceiversState() {
         boolean enableReceivers = false;
         boolean anyDeviceInitialized = false;
-        List <GBDevice> devicesWithCalendar = new ArrayList<>();
+        List<GBDevice> devicesWithCalendar = new ArrayList<>();
 
         FeatureSet features = new FeatureSet();
 
-        for(DeviceStruct struct: deviceStructs){
+        for (DeviceStruct struct : deviceStructs) {
             DeviceSupport deviceSupport = struct.getDeviceSupport();
-            if((deviceSupport != null && deviceSupport.useAutoConnect()) || isDeviceInitialized(struct.getDevice())){
+            if ((deviceSupport != null && deviceSupport.useAutoConnect()) || isDeviceInitialized(struct.getDevice())) {
                 enableReceivers = true;
             }
-            if(isDeviceInitialized(struct.getDevice())){
+            if (isDeviceInitialized(struct.getDevice())) {
                 anyDeviceInitialized = true;
             }
 
             DeviceCoordinator coordinator = struct.getCoordinator();
-            if(coordinator != null){
+            if (coordinator != null) {
                 features.logicalOr(coordinator);
-                if (coordinator.supportsCalendarEvents()){
+                if (coordinator.supportsCalendarEvents()) {
                     devicesWithCalendar.add(struct.getDevice());
                 }
             }
@@ -484,7 +362,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         mBlueToothConnectReceiver = new BluetoothConnectReceiver(this);
         registerReceiver(mBlueToothConnectReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
 
-        mAutoConnectInvervalReceiver= new AutoConnectIntervalReceiver(this);
+        mAutoConnectInvervalReceiver = new AutoConnectIntervalReceiver(this);
         registerReceiver(mAutoConnectInvervalReceiver, new IntentFilter("GB_RECONNECT"));
 
         if (hasPrefs()) {
@@ -568,7 +446,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                     btDeviceAddress = gbDevice.getAddress();
                 }
 
-                if(gbDevice == null){
+                if (gbDevice == null) {
                     return START_NOT_STICKY;
                 }
 
@@ -579,9 +457,9 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                 }
 
                 DeviceStruct registeredStruct = getDeviceStructOrNull(gbDevice);
-                if(registeredStruct != null){
+                if (registeredStruct != null) {
                     boolean deviceAlreadyConnected = isDeviceConnecting(registeredStruct.getDevice()) || isDeviceConnected(registeredStruct.getDevice());
-                    if(deviceAlreadyConnected){
+                    if (deviceAlreadyConnected) {
                         break;
                     }
                     try {
@@ -589,7 +467,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                     } catch (DeviceNotFoundException e) {
                         e.printStackTrace();
                     }
-                }else{
+                } else {
                     registeredStruct = new DeviceStruct();
                     registeredStruct.setDevice(gbDevice);
                     registeredStruct.setCoordinator(DeviceHelper.getInstance().getCoordinator(gbDevice));
@@ -613,18 +491,18 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                     GB.toast(this, getString(R.string.cannot_connect, e.getMessage()), Toast.LENGTH_SHORT, GB.ERROR, e);
                 }
 
-                for(DeviceStruct struct2 : deviceStructs){
+                for (DeviceStruct struct2 : deviceStructs) {
                     struct2.getDevice().sendDeviceUpdateIntent(this);
                 }
                 break;
             default:
                 GBDevice targetedDevice = intent.getParcelableExtra(GBDevice.EXTRA_DEVICE);
                 ArrayList<GBDevice> targetedDevices = new ArrayList<>();
-                if(targetedDevice != null){
+                if (targetedDevice != null) {
                     targetedDevices.add(targetedDevice);
-                }else{
-                    for(GBDevice device : getGBDevices()){
-                        if(isDeviceInitialized(device)){
+                } else {
+                    for (GBDevice device : getGBDevices()) {
+                        if (isDeviceInitialized(device)) {
                             targetedDevices.add(device);
                         }
                     }
@@ -646,8 +524,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
      * @return 'text' or a new String without non supported chars like emoticons, etc.
      */
     private String sanitizeNotifText(String text, GBDevice device) throws DeviceNotFoundException {
-        if (text == null || text.length() == 0)
-            return text;
+        if (text == null || text.length() == 0) return text;
 
         text = getDeviceSupport(device).customStringFilter(text);
 
@@ -659,11 +536,11 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     }
 
     private DeviceCoordinator getDeviceCoordinator(GBDevice device) throws DeviceNotFoundException {
-        if(device == null){
+        if (device == null) {
             throw new DeviceNotFoundException("null");
         }
-        for(DeviceStruct struct : deviceStructs){
-            if(struct.getDevice().equals(device)){
+        for (DeviceStruct struct : deviceStructs) {
+            if (struct.getDevice().equals(device)) {
                 return struct.getCoordinator();
             }
         }
@@ -711,8 +588,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                 }
 
                 //TODO: check if at least one of the attached actions is a reply action instead?
-                if ((notificationSpec.attachedActions != null && notificationSpec.attachedActions.size() > 0)
-                        || (notificationSpec.type == NotificationType.GENERIC_SMS && notificationSpec.phoneNumber != null)) {
+                if ((notificationSpec.attachedActions != null && notificationSpec.attachedActions.size() > 0) || (notificationSpec.type == NotificationType.GENERIC_SMS && notificationSpec.phoneNumber != null)) {
                     // NOTE: maybe not where it belongs
                     // I would rather like to save that as an array in SharedPreferences
                     // this would work but I dont know how to do the same in the Settings Activity's xml
@@ -962,23 +838,23 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
      * @param deviceSupport deviceSupport to reokace/add
      */
     private void setDeviceSupport(GBDevice device, DeviceSupport deviceSupport) throws DeviceNotFoundException {
-       DeviceStruct deviceStruct = getDeviceStruct(device);
-       DeviceSupport cachedDeviceSupport = deviceStruct.getDeviceSupport();
-       if (deviceSupport != cachedDeviceSupport && cachedDeviceSupport != null) {
-           cachedDeviceSupport.dispose();
-       }
-       deviceStruct.setDeviceSupport(deviceSupport);
+        DeviceStruct deviceStruct = getDeviceStruct(device);
+        DeviceSupport cachedDeviceSupport = deviceStruct.getDeviceSupport();
+        if (deviceSupport != cachedDeviceSupport && cachedDeviceSupport != null) {
+            cachedDeviceSupport.dispose();
+        }
+        deviceStruct.setDeviceSupport(deviceSupport);
     }
 
     private void removeDeviceSupport(GBDevice device) throws DeviceNotFoundException {
         DeviceStruct struct = getDeviceStruct(device);
-        if(struct.getDeviceSupport() != null){
+        if (struct.getDeviceSupport() != null) {
             struct.getDeviceSupport().dispose();
         }
         struct.setDeviceSupport(null);
     }
 
-    private DeviceStruct getDeviceStructOrNull(GBDevice device){
+    private DeviceStruct getDeviceStructOrNull(GBDevice device) {
         DeviceStruct deviceStruct = null;
         try {
             deviceStruct = getDeviceStruct(device);
@@ -989,11 +865,11 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     }
 
     public DeviceStruct getDeviceStruct(GBDevice device) throws DeviceNotFoundException {
-        if(device == null){
+        if (device == null) {
             throw new DeviceNotFoundException("null");
         }
-        for(DeviceStruct struct : deviceStructs){
-            if(struct.getDevice().equals(device)){
+        for (DeviceStruct struct : deviceStructs) {
+            if (struct.getDevice().equals(device)) {
                 return struct;
             }
         }
@@ -1001,18 +877,18 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     }
 
     public GBDevice getDeviceByAddress(String deviceAddress) throws DeviceNotFoundException {
-        if(deviceAddress == null){
+        if (deviceAddress == null) {
             throw new DeviceNotFoundException(deviceAddress);
         }
-        for(DeviceStruct struct : deviceStructs){
-            if(struct.getDevice().getAddress().equals(deviceAddress)){
+        for (DeviceStruct struct : deviceStructs) {
+            if (struct.getDevice().getAddress().equals(deviceAddress)) {
                 return struct.getDevice();
             }
         }
         throw new DeviceNotFoundException(deviceAddress);
     }
 
-    public GBDevice getDeviceByAddressOrNull(String deviceAddress){
+    public GBDevice getDeviceByAddressOrNull(String deviceAddress) {
         GBDevice device = null;
         try {
             device = getDeviceByAddress(deviceAddress);
@@ -1023,13 +899,12 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     }
 
     private DeviceSupport getDeviceSupport(GBDevice device) throws DeviceNotFoundException {
-        if(device == null){
+        if (device == null) {
             throw new DeviceNotFoundException("null");
         }
-        for(DeviceStruct struct : deviceStructs){
-            if(struct.getDevice().equals(device)){
-                if(struct.getDeviceSupport() == null)
-                    throw new DeviceNotFoundException(device);
+        for (DeviceStruct struct : deviceStructs) {
+            if (struct.getDevice().equals(device)) {
+                if (struct.getDeviceSupport() == null) throw new DeviceNotFoundException(device);
 
                 return struct.getDeviceSupport();
             }
@@ -1054,8 +929,8 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     }
 
     private boolean isDeviceConnected(String deviceAddress) {
-        for(DeviceStruct struct : deviceStructs){
-            if(struct.getDevice().getAddress().compareToIgnoreCase(deviceAddress) == 0){
+        for (DeviceStruct struct : deviceStructs) {
+            if (struct.getDevice().getAddress().compareToIgnoreCase(deviceAddress) == 0) {
                 return struct.getDevice().isConnected();
             }
         }
@@ -1067,8 +942,8 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     }
 
     private boolean isDeviceConnecting(String deviceAddress) {
-        for(DeviceStruct struct : deviceStructs){
-            if(struct.getDevice().getAddress().compareToIgnoreCase(deviceAddress) == 0){
+        for (DeviceStruct struct : deviceStructs) {
+            if (struct.getDevice().getAddress().compareToIgnoreCase(deviceAddress) == 0) {
                 return struct.getDevice().isConnecting();
             }
         }
@@ -1080,27 +955,27 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     }
 
     private boolean isDeviceInitialized(String deviceAddress) {
-        for(DeviceStruct struct : deviceStructs){
-            if(struct.getDevice().getAddress().compareToIgnoreCase(deviceAddress) == 0){
+        for (DeviceStruct struct : deviceStructs) {
+            if (struct.getDevice().getAddress().compareToIgnoreCase(deviceAddress) == 0) {
                 return struct.getDevice().isInitialized();
             }
         }
         return false;
     }
 
-    private boolean deviceHasCalendarReceiverRegistered(GBDevice device){
-        for (CalendarReceiver receiver: mCalendarReceiver){
-            if(receiver.getGBDevice().equals(device)){
+    private boolean deviceHasCalendarReceiverRegistered(GBDevice device) {
+        for (CalendarReceiver receiver : mCalendarReceiver) {
+            if (receiver.getGBDevice().equals(device)) {
                 return true;
             }
         }
         return false;
     }
 
-    private void setReceiversEnableState(boolean enable, boolean initialized, FeatureSet features, List <GBDevice> devicesWithCalendar) {
+    private void setReceiversEnableState(boolean enable, boolean initialized, FeatureSet features, List<GBDevice> devicesWithCalendar) {
         LOG.info("Setting broadcast receivers to: " + enable);
 
-        if(enable && features == null){
+        if (enable && features == null) {
             throw new RuntimeException("features cannot be null when enabling receivers");
         }
 
@@ -1125,7 +1000,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                 registerReceiver(mAlarmReceiver, new IntentFilter("DAILY_ALARM"));
             }
         } else {
-            for (CalendarReceiver registeredReceiver: mCalendarReceiver){
+            for (CalendarReceiver registeredReceiver : mCalendarReceiver) {
                 unregisterReceiver(registeredReceiver);
             }
             mCalendarReceiver.clear();
@@ -1183,17 +1058,9 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
 
             // Weather receivers
             if (features.supportsWeather()) {
-                if (GBApplication.isRunningOreoOrLater()) {
-                    if (mLineageOsWeatherReceiver == null) {
-                        mLineageOsWeatherReceiver = new LineageOsWeatherReceiver();
-                        registerReceiver(mLineageOsWeatherReceiver, new IntentFilter("GB_UPDATE_WEATHER"));
-                    }
-                }
-                else {
-                    if (mCMWeatherReceiver == null) {
-                        mCMWeatherReceiver = new CMWeatherReceiver();
-                        registerReceiver(mCMWeatherReceiver, new IntentFilter("GB_UPDATE_WEATHER"));
-                    }
+                if (mCMWeatherReceiver == null) {
+                    mCMWeatherReceiver = new CMWeatherReceiver();
+                    registerReceiver(mCMWeatherReceiver, new IntentFilter("GB_UPDATE_WEATHER"));
                 }
                 if (mTinyWeatherForecastGermanyReceiver == null) {
                     mTinyWeatherForecastGermanyReceiver = new TinyWeatherForecastGermanyReceiver();
@@ -1213,8 +1080,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
                 }
             }
 
-            if (GBApplication.getPrefs().getBoolean("auto_fetch_enabled", false) &&
-                    features.supportsActivityDataFetching() && mGBAutoFetchReceiver == null) {
+            if (GBApplication.getPrefs().getBoolean("auto_fetch_enabled", false) && features.supportsActivityDataFetching() && mGBAutoFetchReceiver == null) {
                 mGBAutoFetchReceiver = new GBAutoFetchReceiver();
                 registerReceiver(mGBAutoFetchReceiver, new IntentFilter("android.intent.action.USER_PRESENT"));
             }
@@ -1251,10 +1117,6 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
             if (mCMWeatherReceiver != null) {
                 unregisterReceiver(mCMWeatherReceiver);
                 mCMWeatherReceiver = null;
-            }
-            if (mLineageOsWeatherReceiver != null) {
-                unregisterReceiver(mLineageOsWeatherReceiver);
-                mLineageOsWeatherReceiver = null;
             }
             if (mOmniJawsObserver != null) {
                 getContentResolver().unregisterContentObserver(mOmniJawsObserver);
@@ -1294,7 +1156,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         mAutoConnectInvervalReceiver.destroy();
         mAutoConnectInvervalReceiver = null;
 
-        for(GBDevice device : getGBDevices()){
+        for (GBDevice device : getGBDevices()) {
             try {
                 removeDeviceSupport(device);
             } catch (DeviceNotFoundException e) {
@@ -1316,7 +1178,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (GBPrefs.DEVICE_AUTO_RECONNECT.equals(key)) {
-            for(DeviceStruct deviceStruct : deviceStructs){
+            for (DeviceStruct deviceStruct : deviceStructs) {
                 boolean autoReconnect = getGBPrefs().getAutoReconnect(deviceStruct.getDevice());
                 deviceStruct.getDeviceSupport().setAutoReconnect(autoReconnect);
             }
@@ -1324,7 +1186,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
         if (GBPrefs.CHART_MAX_HEART_RATE.equals(key) || GBPrefs.CHART_MIN_HEART_RATE.equals(key)) {
             HeartRateUtils.getInstance().updateCachedHeartRatePreferences();
         }
-        if (GBPrefs.PREF_ALLOW_INTENT_API.equals(key)){
+        if (GBPrefs.PREF_ALLOW_INTENT_API.equals(key)) {
             allowBluetoothIntentApi = sharedPreferences.getBoolean(GBPrefs.PREF_ALLOW_INTENT_API, false);
             GB.log("allowBluetoothIntentApi changed to " + allowBluetoothIntentApi, GB.INFO, null);
         }
@@ -1344,7 +1206,7 @@ public class DeviceCommunicationService extends Service implements SharedPrefere
 
     public GBDevice[] getGBDevices() {
         GBDevice[] devices = new GBDevice[deviceStructs.size()];
-        for(int i = 0; i < devices.length; i++){
+        for (int i = 0; i < devices.length; i++) {
             devices[i] = deviceStructs.get(i).getDevice();
         }
         return devices;

@@ -78,43 +78,40 @@ public class ConfigureReminders extends AbstractGBActivity {
         updateRemindersFromDB();
 
         final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final DeviceCoordinator coordinator = DeviceHelper.getInstance().getCoordinator(gbDevice);
+        fab.setOnClickListener(v -> {
+            final DeviceCoordinator coordinator = DeviceHelper.getInstance().getCoordinator(gbDevice);
 
-                final Prefs prefs = new Prefs(GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress()));
-                int reservedSlots = prefs.getInt(DeviceSettingsPreferenceConst.PREF_RESERVER_REMINDERS_CALENDAR, coordinator.supportsCalendarEvents() ? 0 : 9);
+            final Prefs prefs = new Prefs(GBApplication.getDeviceSpecificSharedPrefs(gbDevice.getAddress()));
+            int reservedSlots = prefs.getInt(DeviceSettingsPreferenceConst.PREF_RESERVER_REMINDERS_CALENDAR, coordinator.supportsCalendarEvents() ? 0 : 9);
 
-                int deviceSlots = coordinator.getReminderSlotCount(gbDevice) - reservedSlots;
+            int deviceSlots = coordinator.getReminderSlotCount(gbDevice) - reservedSlots;
 
-                if (mGBReminderListAdapter.getItemCount() >= deviceSlots) {
-                    // No more free slots
-                    new AlertDialog.Builder(v.getContext())
-                            .setTitle(R.string.reminder_no_free_slots_title)
-                            .setMessage(getBaseContext().getString(R.string.reminder_no_free_slots_description, String.format(Locale.getDefault(), "%d", deviceSlots)))
-                            .setIcon(R.drawable.ic_warning)
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(final DialogInterface dialog, final int whichButton) {
-                                }
-                            })
-                            .show();
-                    return;
-                }
-
-                final Reminder reminder;
-                try (DBHandler db = GBApplication.acquireDB()) {
-                    final DaoSession daoSession = db.getDaoSession();
-                    final Device device = DBHelper.getDevice(gbDevice, daoSession);
-                    final User user = DBHelper.getUser(daoSession);
-                    reminder = createDefaultReminder(device, user);
-                } catch (final Exception e) {
-                    LOG.error("Error accessing database", e);
-                    return;
-                }
-
-                configureReminder(reminder);
+            if (mGBReminderListAdapter.getItemCount() >= deviceSlots) {
+                // No more free slots
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle(R.string.reminder_no_free_slots_title)
+                        .setMessage(getBaseContext().getString(R.string.reminder_no_free_slots_description, String.format(Locale.getDefault(), "%d", deviceSlots)))
+                        .setIcon(R.drawable.ic_warning)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialog, final int whichButton) {
+                            }
+                        })
+                        .show();
+                return;
             }
+
+            final Reminder reminder;
+            try (DBHandler db = GBApplication.acquireDB()) {
+                final DaoSession daoSession = db.getDaoSession();
+                final Device device = DBHelper.getDevice(gbDevice, daoSession);
+                final User user = DBHelper.getUser(daoSession);
+                reminder = createDefaultReminder(device, user);
+            } catch (final Exception e) {
+                LOG.error("Error accessing database", e);
+                return;
+            }
+
+            configureReminder(reminder);
         });
     }
 

@@ -73,46 +73,33 @@ public class DataManagementActivity extends AbstractGBActivity {
         dbPath.setText(getExternalPath());
 
         Button exportDBButton = findViewById(R.id.exportDataButton);
-        exportDBButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exportDB();
-            }
-        });
+        exportDBButton.setOnClickListener(v -> exportDB());
         Button importDBButton = findViewById(R.id.importDataButton);
-        importDBButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                importDB();
-            }
-        });
+        importDBButton.setOnClickListener(v -> importDB());
 
         Button showContentDataButton = findViewById(R.id.showContentDataButton);
-        showContentDataButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                File export_path = null;
-                try {
-                    export_path = FileUtils.getExternalFilesDir();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(DataManagementActivity.this);
-                builder.setTitle("Export/Import directory content:");
-
-                ArrayAdapter<String> directory_listing = new ArrayAdapter<String>(DataManagementActivity.this, android.R.layout.simple_list_item_1, export_path.list());
-
-                builder.setSingleChoiceItems(directory_listing, 0, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-
+        showContentDataButton.setOnClickListener(v -> {
+            File export_path = null;
+            try {
+                export_path = FileUtils.getExternalFilesDir();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(DataManagementActivity.this);
+            builder.setTitle("Export/Import directory content:");
+
+            ArrayAdapter<String> directory_listing = new ArrayAdapter<String>(DataManagementActivity.this, android.R.layout.simple_list_item_1, export_path.list());
+
+            builder.setSingleChoiceItems(directory_listing, 0, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
         });
 
         int oldDBVisibility = hasOldActivityDatabase() ? View.VISIBLE : View.GONE;
@@ -122,31 +109,16 @@ public class DataManagementActivity extends AbstractGBActivity {
 
         Button deleteOldActivityDBButton = findViewById(R.id.deleteOldActivityDB);
         deleteOldActivityDBButton.setVisibility(oldDBVisibility);
-        deleteOldActivityDBButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteOldActivityDbFile();
-            }
-        });
+        deleteOldActivityDBButton.setOnClickListener(v -> deleteOldActivityDbFile());
 
         Button deleteDBButton = findViewById(R.id.emptyDBButton);
-        deleteDBButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteActivityDatabase();
-            }
-        });
+        deleteDBButton.setOnClickListener(v -> deleteActivityDatabase());
 
         TextView dbPath2 = findViewById(R.id.activity_data_management_path2);
         dbPath2.setText(getExternalPath());
 
         Button cleanExportDirectoryButton = findViewById(R.id.cleanExportDirectoryButton);
-        cleanExportDirectoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cleanExportDirectory();
-            }
-        });
+        cleanExportDirectoryButton.setOnClickListener(v -> cleanExportDirectory());
         GBApplication gbApp = GBApplication.app();
         Prefs prefs = GBApplication.getPrefs();
         boolean autoExportEnabled = prefs.getBoolean(GBPrefs.AUTO_EXPORT_ENABLED, false);
@@ -195,14 +167,11 @@ public class DataManagementActivity extends AbstractGBActivity {
         final Context context = getApplicationContext();
         Button testExportDBButton = findViewById(R.id.testExportDBButton);
         testExportDBButton.setVisibility(testExportVisibility);
-        testExportDBButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendBroadcast(new Intent(context, PeriodicExporter.class));
-                GB.toast(context,
-                        context.getString(R.string.activity_DB_test_export_message),
-                        Toast.LENGTH_SHORT, GB.INFO);
-            }
+        testExportDBButton.setOnClickListener(v -> {
+            sendBroadcast(new Intent(context, PeriodicExporter.class));
+            GB.toast(context,
+                    context.getString(R.string.activity_DB_test_export_message),
+                    Toast.LENGTH_SHORT, GB.INFO);
         });
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -417,15 +386,15 @@ public class DataManagementActivity extends AbstractGBActivity {
                 .setIcon(R.drawable.ic_warning)
                 .setMessage(R.string.dbmanagementactivity_delete_old_activitydb_confirmation)
                 .setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (GBApplication.deleteOldActivityDatabase(DataManagementActivity.this)) {
-                    GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_old_activity_db_successfully_deleted), Toast.LENGTH_SHORT, GB.INFO);
-                } else {
-                    GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_old_activity_db_deletion_failed), Toast.LENGTH_SHORT, GB.INFO);
-                }
-            }
-        });
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (GBApplication.deleteOldActivityDatabase(DataManagementActivity.this)) {
+                            GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_old_activity_db_successfully_deleted), Toast.LENGTH_SHORT, GB.INFO);
+                        } else {
+                            GB.toast(DataManagementActivity.this, getString(R.string.dbmanagementactivity_old_activity_db_deletion_failed), Toast.LENGTH_SHORT, GB.INFO);
+                        }
+                    }
+                });
         new AlertDialog.Builder(this).setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

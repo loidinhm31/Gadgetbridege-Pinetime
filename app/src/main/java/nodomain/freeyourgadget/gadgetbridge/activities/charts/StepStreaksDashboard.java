@@ -164,12 +164,7 @@ public class StepStreaksDashboard extends DialogFragment {
 
         ImageButton step_streak_share_button = getView().findViewById(R.id.step_streak_share_button);
         step_streak_share_button.setVisibility(View.GONE);
-        step_streak_share_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                take_share_screenshot(getActivity());
-            }
-        });
+        step_streak_share_button.setOnClickListener(v -> take_share_screenshot(getActivity()));
 
         if (stepsStreaks.current.days > 0) {
             current.setVisibility(View.VISIBLE);

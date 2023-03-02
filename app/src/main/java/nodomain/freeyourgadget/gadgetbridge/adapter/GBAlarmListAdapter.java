@@ -92,20 +92,12 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
             }
         });
 
-        holder.container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ConfigureAlarms) mContext).configureAlarm(alarm);
-            }
-        });
-        holder.container.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                alarm.setUnused(!alarm.getUnused());
-                holder.container.setAlpha(alarm.getUnused() ? 0.5f : 1.0f);
-                updateInDB(alarm);
-                return true;
-            }
+        holder.container.setOnClickListener(v -> ((ConfigureAlarms) mContext).configureAlarm(alarm));
+        holder.container.setOnLongClickListener(v -> {
+            alarm.setUnused(!alarm.getUnused());
+            holder.container.setAlpha(alarm.getUnused() ? 0.5f : 1.0f);
+            updateInDB(alarm);
+            return true;
         });
 
         holder.alarmTime.setText(DateTimeUtils.formatTime(alarm.getHour(), alarm.getMinute()));

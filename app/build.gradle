@@ -10,7 +10,6 @@ apply plugin: 'com.google.protobuf'
 def ABORT_ON_CHECK_FAILURE = false
 
 tasks.withType(Test) {
-    systemProperty "MiFirmwareDir", System.getProperty("MiFirmwareDir", null)
     systemProperty "logback.configurationFile", System.getProperty("user.dir", null) + "/app/src/main/assets/logback.xml"
     systemProperty "GB_LOGFILES_DIR", Files.createTempDirectory("gblog").toString()
 }
@@ -46,13 +45,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    compileSdkVersion 29
+    compileSdkVersion 33
     buildToolsVersion "31.0.0"
 
     defaultConfig {
         applicationId "nodomain.freeyourgadget.gadgetbridge"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 33
 
         // Note: always bump BOTH versionCode and versionName!
         versionName "0.73.0"
@@ -87,22 +86,6 @@ android {
             dimension "device_type"
             //applicationIdSuffix ""
             //versionNameSuffix ""
-        }
-        banglejs {
-            dimension "device_type"
-            applicationId "com.espruino.gadgetbridge"
-            applicationIdSuffix ".banglejs"
-            versionNameSuffix "-banglejs"
-            buildConfigField "boolean", "INTERNET_ACCESS", "true"
-            // Disable pebble provider to allow Bangle.js Gadgetbridge to coexist with Gadgetbridge
-            resValue "string", "pebble_content_provider", "com.getpebble.android.nopebble.bangle.provider"
-            resValue "string", "app_name", "@string/application_name_banglejs_main"
-            resValue "string", "title_activity_controlcenter", "@string/title_activity_controlcenter_banglejs_main"
-            resValue "string", "about_activity_title", "@string/about_activity_title_banglejs_main"
-            resValue "string", "about_description", "@string/about_description_banglejs_main"
-            resValue "string", "gadgetbridge_running", "@string/gadgetbridge_running_banglejs_main"
-            targetSdkVersion 30 // Bangle.js flavor only - We need SDK 30 for play store
-            // Note: app/src/banglejs/AndroidManifest.xml contains some extra permissions we need to make SDK 30 work
         }
     }
 
@@ -213,20 +196,20 @@ dependencies {
     testImplementation "org.mockito:mockito-core:1.10.19"
     testImplementation "org.robolectric:robolectric:4.8.2"
     testImplementation "org.hamcrest:hamcrest-library:1.3"
-    testImplementation "com.google.code.gson:gson:2.8.6"
+    testImplementation "com.google.code.gson:gson:2.8.9"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "androidx.appcompat:appcompat:1.3.1"
-    implementation "androidx.preference:preference:1.1.1"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.preference:preference:1.2.0"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.palette:palette:1.0.0"
 
-    implementation "com.google.android.material:material:1.4.0"
+    implementation "com.google.android.material:material:1.8.0"
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation "com.google.code.gson:gson:2.8.6"
+    implementation "com.google.code.gson:gson:2.8.9"
 
     implementation "no.nordicsemi.android:dfu:1.11.1"
     implementation("com.github.tony19:logback-android:2.0.0") {

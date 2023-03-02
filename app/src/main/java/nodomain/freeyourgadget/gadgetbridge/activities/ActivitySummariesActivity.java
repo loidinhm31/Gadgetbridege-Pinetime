@@ -320,12 +320,7 @@ public class ActivitySummariesActivity extends AbstractListActivity<BaseActivity
         });
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fetchTrackData();
-            }
-        });
+        fab.setOnClickListener(v -> fetchTrackData());
 
         activityKindMap = fillKindMap();
 

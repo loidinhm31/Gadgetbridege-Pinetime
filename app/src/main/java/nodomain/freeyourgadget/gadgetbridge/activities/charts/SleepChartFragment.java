@@ -336,13 +336,10 @@ public class SleepChartFragment extends AbstractChartFragment {
         ConstraintLayout heartRateWidgetLayout = rootView.findViewById(R.id.heartrate_widget_layout);
         mSleepchartInfo.setMaxLines(sleepLinesLimit);
 
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DecimalFormat df = new DecimalFormat("###.#");
-                String detailedDuration = String.format(getString(R.string.charts_min_max_heartrate_popup), heartRateMin, heartRateMax, df.format(intensityTotal));
-                new ChartsActivity.ShowDurationDialog(detailedDuration, getContext()).show();
-            }
+        View.OnClickListener listener = v -> {
+            DecimalFormat df = new DecimalFormat("###.#");
+            String detailedDuration = String.format(getString(R.string.charts_min_max_heartrate_popup), heartRateMin, heartRateMax, df.format(intensityTotal));
+            new ChartsActivity.ShowDurationDialog(detailedDuration, getContext()).show();
         };
 
         heartRateWidgetLayout.setOnClickListener(listener);

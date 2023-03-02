@@ -19,6 +19,7 @@
 package nodomain.freeyourgadget.gadgetbridge.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -95,6 +96,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import static nodomain.freeyourgadget.gadgetbridge.util.GB.toast;
 
 
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class DiscoveryActivity extends AbstractGBActivity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, BondingInterface {
     private static final Logger LOG = LoggerFactory.getLogger(DiscoveryActivity.class);
     private static final long SCAN_DURATION = 30000; // 30s
@@ -113,18 +115,14 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
     private DeviceCandidateAdapter deviceCandidateAdapter;
     private GBDeviceCandidate deviceTarget;
     private BluetoothAdapter adapter;
-    private BluetoothLeScanner bluetoothLeScanner;
     private Button startButton;
     private boolean scanning;
     private long selectedUnsupportedDeviceKey = DebugActivity.SELECT_DEVICE;
-    private final Runnable stopRunnable = new Runnable() {
-        @Override
-        public void run() {
-            stopDiscovery();
-            LOG.info("Discovery stopped by thread timeout.");
-        }
+    private final Runnable stopRunnable = () -> {
+        stopDiscovery();
+        LOG.info("Discovery stopped by thread timeout.");
     };
-    private Set<BTUUIDPair> foundCandidates = new HashSet<>();
+    private final Set<BTUUIDPair> foundCandidates = new HashSet<>();
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -199,6 +197,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         }
 
         newBLEScanCallback = new ScanCallback() {
+            @SuppressLint("MissingPermission")
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 super.onScanResult(callbackType, result);
@@ -232,20 +231,12 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         loadSettingsValues();
         setContentView(R.layout.activity_discovery);
         startButton = findViewById(R.id.discovery_start);
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onStartButtonClick(startButton);
-            }
-        });
+        startButton.setOnClickListener(v -> onStartButtonClick(startButton));
 
         Button settingsButton = findViewById(R.id.discovery_preferences);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent enableIntent = new Intent(DiscoveryActivity.this, DiscoveryPairingPreferenceActivity.class);
-                startActivity(enableIntent);
-            }
+        settingsButton.setOnClickListener(v -> {
+            Intent enableIntent = new Intent(DiscoveryActivity.this, DiscoveryPairingPreferenceActivity.class);
+            startActivity(enableIntent);
         });
 
         bluetoothProgress = findViewById(R.id.discovery_progressbar);
@@ -328,6 +319,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         super.onResume();
     }
 
+    @SuppressLint("MissingPermission")
     private void handleDeviceFound(BluetoothDevice device, short rssi) {
         if (device.getName() != null) {
             if (handleDeviceFound(device, rssi, null)) {
@@ -348,7 +340,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
     private void addToCandidateListIfNotAlreadyProcessed(BluetoothDevice device, short rssi, ParcelUuid[] uuids) {
         BTUUIDPair btuuidPair = new BTUUIDPair(device, uuids);
         if (foundCandidates.contains(btuuidPair)) {
-//                        LOG.info("candidate already processed, skipping");
+            LOG.info("candidate already processed, skipping");
             return;
         }
 
@@ -358,6 +350,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         }
     }
 
+    @SuppressLint("MissingPermission")
     private boolean handleDeviceFound(BluetoothDevice device, short rssi, ParcelUuid[] uuids) {
         LOG.debug("found device: " + device.getName() + ", " + device.getAddress());
         if (LOG.isDebugEnabled()) {
@@ -433,6 +426,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void startBTLEDiscovery() {
         LOG.info("Starting BLE discovery");
 
@@ -448,6 +442,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         setScanning(true);
     }
 
+    @SuppressLint("MissingPermission")
     private void stopBLEDiscovery() {
         if (adapter == null) {
             return;
@@ -475,6 +470,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
     /**
      * Starts a regular Bluetooth scan
      */
+    @SuppressLint("MissingPermission")
     private void startBTDiscovery() {
         LOG.info("Starting BT discovery");
         try {
@@ -493,6 +489,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void stopBTDiscovery() {
         if (adapter != null) {
             adapter.cancelDiscovery();
@@ -512,6 +509,7 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
         }
     }
 
+    @SuppressLint("MissingPermission")
     private boolean checkBluetoothAvailable() {
         BluetoothManager bluetoothService = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         if (bluetoothService == null) {
@@ -533,11 +531,13 @@ public class DiscoveryActivity extends AbstractGBActivity implements AdapterView
             return false;
         }
         this.adapter = adapter;
+        BluetoothLeScanner bluetoothLeScanner;
         if (GB.supportsBluetoothLE())
-            this.bluetoothLeScanner = adapter.getBluetoothLeScanner();
+            bluetoothLeScanner = adapter.getBluetoothLeScanner();
         return true;
     }
 
+    @SuppressLint("MissingPermission")
     private boolean ensureBluetoothReady() {
         boolean available = checkBluetoothAvailable();
         startButton.setEnabled(available);

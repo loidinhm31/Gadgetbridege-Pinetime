@@ -73,30 +73,22 @@ public class GBWorldClockListAdapter extends RecyclerView.Adapter<GBWorldClockLi
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         final WorldClock worldClock = worldClockList.get(position);
 
-        holder.container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ConfigureWorldClocks) mContext).configureWorldClock(worldClock);
-            }
-        });
+        holder.container.setOnClickListener(v -> ((ConfigureWorldClocks) mContext).configureWorldClock(worldClock));
 
-        holder.container.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                new AlertDialog.Builder(v.getContext())
-                        .setTitle(v.getContext().getString(R.string.world_clock_delete_confirm_title, worldClock.getLabel()))
-                        .setMessage(R.string.world_clock_delete_confirm_description)
-                        .setIcon(R.drawable.ic_warning)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(final DialogInterface dialog, final int whichButton) {
-                                ((ConfigureWorldClocks) mContext).deleteWorldClock(worldClock);
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .show();
+        holder.container.setOnLongClickListener(v -> {
+            new AlertDialog.Builder(v.getContext())
+                    .setTitle(v.getContext().getString(R.string.world_clock_delete_confirm_title, worldClock.getLabel()))
+                    .setMessage(R.string.world_clock_delete_confirm_description)
+                    .setIcon(R.drawable.ic_warning)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, final int whichButton) {
+                            ((ConfigureWorldClocks) mContext).deleteWorldClock(worldClock);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
 
-                return true;
-            }
+            return true;
         });
 
         holder.worldClockLabel.setText(worldClock.getLabel());

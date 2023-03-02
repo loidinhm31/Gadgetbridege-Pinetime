@@ -246,96 +246,89 @@ public class ActivitySummaryDetail extends AbstractGBActivity {
         });
 
         ImageView activity_summary_detail_edit_name_image = findViewById(R.id.activity_summary_detail_edit_name);
-        activity_summary_detail_edit_name_image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final EditText input = new EditText(ActivitySummaryDetail.this);
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                String name = currentItem.getName();
-                input.setText((name != null) ? name : "");
-                FrameLayout container = new FrameLayout(ActivitySummaryDetail.this);
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                params.leftMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
-                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
-                input.setLayoutParams(params);
-                container.addView(input);
+        activity_summary_detail_edit_name_image.setOnClickListener(v -> {
+            final EditText input = new EditText(ActivitySummaryDetail.this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            String name = currentItem.getName();
+            input.setText((name != null) ? name : "");
+            FrameLayout container = new FrameLayout(ActivitySummaryDetail.this);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.leftMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
+            params.rightMargin = getResources().getDimensionPixelSize(R.dimen.dialog_margin);
+            input.setLayoutParams(params);
+            container.addView(input);
 
-                new AlertDialog.Builder(ActivitySummaryDetail.this)
-                        .setView(container)
-                        .setCancelable(true)
-                        .setTitle(ActivitySummaryDetail.this.getString(R.string.activity_summary_edit_name_title))
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String name = input.getText().toString();
-                                if (name.length() < 1) name = null;
-                                currentItem.setName(name);
-                                currentItem.update();
-                                makeSummaryHeader(currentItem);
-                                makeSummaryContent(currentItem);
-                            }
-                        })
-                        .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .show();
-            }
+            new AlertDialog.Builder(ActivitySummaryDetail.this)
+                    .setView(container)
+                    .setCancelable(true)
+                    .setTitle(ActivitySummaryDetail.this.getString(R.string.activity_summary_edit_name_title))
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String name = input.getText().toString();
+                            if (name.length() < 1) name = null;
+                            currentItem.setName(name);
+                            currentItem.update();
+                            makeSummaryHeader(currentItem);
+                            makeSummaryContent(currentItem);
+                        }
+                    })
+                    .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .show();
         });
         ImageView activity_summary_detail_edit_gps = findViewById(R.id.activity_summary_detail_edit_gps);
-        activity_summary_detail_edit_gps.setOnClickListener(new View.OnClickListener() {
+        activity_summary_detail_edit_gps.setOnClickListener(view -> {
+            export_path = get_path();
+            filesGpxList = get_gpx_file_list();
 
-            @Override
-            public void onClick(View view) {
-                export_path = get_path();
-                filesGpxList = get_gpx_file_list();
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(ActivitySummaryDetail.this);
-                builder.setTitle(R.string.activity_summary_detail_select_gpx_track);
-                ArrayAdapter<String> directory_listing = new ArrayAdapter<String>(ActivitySummaryDetail.this, android.R.layout.simple_list_item_1, filesGpxList);
-                builder.setSingleChoiceItems(directory_listing, 0, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        selectedGpxIndex = which;
-                        selectedGpxFile = export_path + "/" + filesGpxList.get(selectedGpxIndex);
-                        String message = String.format("%s %s?", getString(R.string.set), filesGpxList.get(selectedGpxIndex));
-                        if (selectedGpxIndex == 0) {
-                            selectedGpxFile = null;
-                            message = String.format("%s?", getString(R.string.activity_summary_detail_clear_gpx_track));
-                        }
-
-                        new AlertDialog.Builder(ActivitySummaryDetail.this)
-                                .setCancelable(true)
-                                .setIcon(R.drawable.ic_warning)
-                                .setTitle(R.string.activity_summary_detail_editing_gpx_track)
-                                .setMessage(message)
-                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        currentItem.setGpxTrack(selectedGpxFile);
-                                        currentItem.update();
-                                        if (get_gpx_file() != null) {
-                                            showCanvas();
-                                            activitySummariesGpsFragment.set_data(get_gpx_file());
-                                        } else {
-                                            hideCanvas();
-                                        }
-                                    }
-                                })
-                                .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
-                                })
-                                .show();
-                        dialog.dismiss();
+            AlertDialog.Builder builder = new AlertDialog.Builder(ActivitySummaryDetail.this);
+            builder.setTitle(R.string.activity_summary_detail_select_gpx_track);
+            ArrayAdapter<String> directory_listing = new ArrayAdapter<String>(ActivitySummaryDetail.this, android.R.layout.simple_list_item_1, filesGpxList);
+            builder.setSingleChoiceItems(directory_listing, 0, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    selectedGpxIndex = which;
+                    selectedGpxFile = export_path + "/" + filesGpxList.get(selectedGpxIndex);
+                    String message = String.format("%s %s?", getString(R.string.set), filesGpxList.get(selectedGpxIndex));
+                    if (selectedGpxIndex == 0) {
+                        selectedGpxFile = null;
+                        message = String.format("%s?", getString(R.string.activity_summary_detail_clear_gpx_track));
                     }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+
+                    new AlertDialog.Builder(ActivitySummaryDetail.this)
+                            .setCancelable(true)
+                            .setIcon(R.drawable.ic_warning)
+                            .setTitle(R.string.activity_summary_detail_editing_gpx_track)
+                            .setMessage(message)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    currentItem.setGpxTrack(selectedGpxFile);
+                                    currentItem.update();
+                                    if (get_gpx_file() != null) {
+                                        showCanvas();
+                                        activitySummariesGpsFragment.set_data(get_gpx_file());
+                                    } else {
+                                        hideCanvas();
+                                    }
+                                }
+                            })
+                            .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .show();
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
     }
 

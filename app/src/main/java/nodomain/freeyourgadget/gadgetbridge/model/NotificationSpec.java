@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class NotificationSpec {
     public int flags;
     private static final AtomicInteger c = new AtomicInteger((int) (System.currentTimeMillis()/1000));
-    private int id;
+    private final int id;
     public String sender;
     public String phoneNumber;
     public String title;

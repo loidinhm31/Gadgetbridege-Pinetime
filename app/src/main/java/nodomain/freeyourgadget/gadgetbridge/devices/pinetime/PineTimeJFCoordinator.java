@@ -17,6 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.devices.pinetime;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
@@ -38,7 +39,7 @@ public class PineTimeJFCoordinator extends AbstractBLEDeviceCoordinator {
     @NonNull
     @Override
     public DeviceType getSupportedType(GBDeviceCandidate candidate) {
-        String name = candidate.getDevice().getName();
+        @SuppressLint("MissingPermission") String name = candidate.getDevice().getName();
         if (name != null && (name.startsWith("Pinetime-JF") || name.startsWith("InfiniTime"))) {
             return DeviceType.PINETIME_JF;
         }

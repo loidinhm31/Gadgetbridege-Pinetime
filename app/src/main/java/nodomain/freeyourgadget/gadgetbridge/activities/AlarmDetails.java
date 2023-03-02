@@ -74,51 +74,15 @@ public class AlarmDetails extends AbstractGBActivity {
         cbSunday = findViewById(R.id.alarm_cb_sunday);
 
 
-        cbSmartWakeup.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbSnooze.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbMonday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbTuesday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbWednesday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbThursday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbFriday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbSaturday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
-        cbSunday.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                ((CheckedTextView) v).toggle();
-            }
-        });
+        cbSmartWakeup.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbSnooze.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbMonday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbTuesday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbWednesday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbThursday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbFriday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbSaturday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
+        cbSunday.setOnClickListener(v -> ((CheckedTextView) v).toggle());
 
         timePicker.setIs24HourView(DateFormat.is24HourFormat(GBApplication.getContext()));
         timePicker.setCurrentHour(alarm.getHour());

@@ -86,18 +86,13 @@ public class WorldClockDetails extends AbstractGBActivity {
         timezoneAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, timezoneIDs);
 
         final View cardTimezone = findViewById(R.id.card_timezone);
-        cardTimezone.setOnClickListener(new View.OnClickListener() {
+        cardTimezone.setOnClickListener(view -> new AlertDialog.Builder(WorldClockDetails.this).setAdapter(timezoneAdapter, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                new AlertDialog.Builder(WorldClockDetails.this).setAdapter(timezoneAdapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        worldClock.setTimeZoneId(timezoneIDs[i]);
-                        updateUiFromWorldClock();
-                    }
-                }).create().show();
+            public void onClick(DialogInterface dialogInterface, int i) {
+                worldClock.setTimeZoneId(timezoneIDs[i]);
+                updateUiFromWorldClock();
             }
-        });
+        }).create().show());
 
         if (coordinator.supportsDisabledWorldClocks()) {
             worldClockEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -140,13 +135,10 @@ public class WorldClockDetails extends AbstractGBActivity {
         });
 
         final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateWorldClock();
-                WorldClockDetails.this.setResult(1);
-                finish();
-            }
+        fab.setOnClickListener(view -> {
+            updateWorldClock();
+            WorldClockDetails.this.setResult(1);
+            finish();
         });
 
         updateUiFromWorldClock();

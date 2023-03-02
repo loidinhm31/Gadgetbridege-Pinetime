@@ -177,406 +177,304 @@ public class DebugActivity extends AbstractGBActivity {
         sendTypeSpinner.setAdapter(spinnerArrayAdapter);
 
         Button sendButton = findViewById(R.id.sendButton);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NotificationSpec notificationSpec = new NotificationSpec();
-                String testString = editContent.getText().toString();
-                notificationSpec.phoneNumber = testString;
-                notificationSpec.body = testString;
-                notificationSpec.sender = testString;
-                notificationSpec.subject = testString;
-                if (notificationSpec.type != NotificationType.GENERIC_SMS) {
-                    // SMS notifications don't have a source app ID when sent by the SMSReceiver,
-                    // so let's not set it here as well for consistency
-                    notificationSpec.sourceAppId = BuildConfig.APPLICATION_ID;
-                }
-                notificationSpec.sourceName = getApplicationContext().getApplicationInfo()
-                        .loadLabel(getApplicationContext().getPackageManager())
-                        .toString();
-                notificationSpec.type = NotificationType.sortedValues()[sendTypeSpinner.getSelectedItemPosition()];
-                notificationSpec.pebbleColor = notificationSpec.type.color;
-                notificationSpec.attachedActions = new ArrayList<>();
-
-                if (notificationSpec.type == NotificationType.GENERIC_SMS) {
-                    // REPLY action
-                    NotificationSpec.Action replyAction = new NotificationSpec.Action();
-                    replyAction.title = "Reply";
-                    replyAction.type = NotificationSpec.Action.TYPE_SYNTECTIC_REPLY_PHONENR;
-                    notificationSpec.attachedActions.add(replyAction);
-                }
-
-                GBApplication.deviceService().onNotification(notificationSpec);
+        sendButton.setOnClickListener(v -> {
+            NotificationSpec notificationSpec = new NotificationSpec();
+            String testString = editContent.getText().toString();
+            notificationSpec.phoneNumber = testString;
+            notificationSpec.body = testString;
+            notificationSpec.sender = testString;
+            notificationSpec.subject = testString;
+            if (notificationSpec.type != NotificationType.GENERIC_SMS) {
+                // SMS notifications don't have a source app ID when sent by the SMSReceiver,
+                // so let's not set it here as well for consistency
+                notificationSpec.sourceAppId = BuildConfig.APPLICATION_ID;
             }
+            notificationSpec.sourceName = getApplicationContext().getApplicationInfo()
+                    .loadLabel(getApplicationContext().getPackageManager())
+                    .toString();
+            notificationSpec.type = NotificationType.sortedValues()[sendTypeSpinner.getSelectedItemPosition()];
+            notificationSpec.pebbleColor = notificationSpec.type.color;
+            notificationSpec.attachedActions = new ArrayList<>();
+
+            if (notificationSpec.type == NotificationType.GENERIC_SMS) {
+                // REPLY action
+                NotificationSpec.Action replyAction = new NotificationSpec.Action();
+                replyAction.title = "Reply";
+                replyAction.type = NotificationSpec.Action.TYPE_SYNTECTIC_REPLY_PHONENR;
+                notificationSpec.attachedActions.add(replyAction);
+            }
+
+            GBApplication.deviceService().onNotification(notificationSpec);
         });
 
         Button incomingCallButton = findViewById(R.id.incomingCallButton);
-        incomingCallButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallSpec callSpec = new CallSpec();
-                callSpec.command = CallSpec.CALL_INCOMING;
-                callSpec.number = editContent.getText().toString();
-                GBApplication.deviceService().onSetCallState(callSpec);
-            }
+        incomingCallButton.setOnClickListener(v -> {
+            CallSpec callSpec = new CallSpec();
+            callSpec.command = CallSpec.CALL_INCOMING;
+            callSpec.number = editContent.getText().toString();
+            GBApplication.deviceService().onSetCallState(callSpec);
         });
+
         Button outgoingCallButton = findViewById(R.id.outgoingCallButton);
-        outgoingCallButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallSpec callSpec = new CallSpec();
-                callSpec.command = CallSpec.CALL_OUTGOING;
-                callSpec.number = editContent.getText().toString();
-                GBApplication.deviceService().onSetCallState(callSpec);
-            }
+        outgoingCallButton.setOnClickListener(v -> {
+            CallSpec callSpec = new CallSpec();
+            callSpec.command = CallSpec.CALL_OUTGOING;
+            callSpec.number = editContent.getText().toString();
+            GBApplication.deviceService().onSetCallState(callSpec);
         });
 
         Button startCallButton = findViewById(R.id.startCallButton);
-        startCallButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallSpec callSpec = new CallSpec();
-                callSpec.command = CallSpec.CALL_START;
-                GBApplication.deviceService().onSetCallState(callSpec);
-            }
+        startCallButton.setOnClickListener(v -> {
+            CallSpec callSpec = new CallSpec();
+            callSpec.command = CallSpec.CALL_START;
+            GBApplication.deviceService().onSetCallState(callSpec);
         });
         Button endCallButton = findViewById(R.id.endCallButton);
-        endCallButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CallSpec callSpec = new CallSpec();
-                callSpec.command = CallSpec.CALL_END;
-                GBApplication.deviceService().onSetCallState(callSpec);
-            }
+        endCallButton.setOnClickListener(v -> {
+            CallSpec callSpec = new CallSpec();
+            callSpec.command = CallSpec.CALL_END;
+            GBApplication.deviceService().onSetCallState(callSpec);
         });
 
         Button rebootButton = findViewById(R.id.rebootButton);
-        rebootButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GBApplication.deviceService().onReset(GBDeviceProtocol.RESET_FLAGS_REBOOT);
-            }
-        });
+        rebootButton.setOnClickListener(v -> GBApplication.deviceService().onReset(GBDeviceProtocol.RESET_FLAGS_REBOOT));
 
         Button factoryResetButton = findViewById(R.id.factoryResetButton);
-        factoryResetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(DebugActivity.this)
-                        .setCancelable(true)
-                        .setTitle(R.string.debugactivity_really_factoryreset_title)
-                        .setMessage(R.string.debugactivity_really_factoryreset)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                GBApplication.deviceService().onReset(GBDeviceProtocol.RESET_FLAGS_FACTORY_RESET);
-                            }
-                        })
-                        .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .show();
-            }
-        });
+        factoryResetButton.setOnClickListener(v -> new AlertDialog.Builder(DebugActivity.this)
+                .setCancelable(true)
+                .setTitle(R.string.debugactivity_really_factoryreset_title)
+                .setMessage(R.string.debugactivity_really_factoryreset)
+                .setPositiveButton(R.string.ok, (dialog, which) -> GBApplication.deviceService().onReset(GBDeviceProtocol.RESET_FLAGS_FACTORY_RESET))
+                .setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                })
+                .show());
 
         Button heartRateButton = findViewById(R.id.HeartRateButton);
-        heartRateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GB.toast("Measuring heart rate, please wait...", Toast.LENGTH_LONG, GB.INFO);
-                GBApplication.deviceService().onHeartRateTest();
-            }
+        heartRateButton.setOnClickListener(v -> {
+            GB.toast("Measuring heart rate, please wait...", Toast.LENGTH_LONG, GB.INFO);
+            GBApplication.deviceService().onHeartRateTest();
         });
 
         Button setFetchTimeButton = findViewById(R.id.SetFetchTimeButton);
-        setFetchTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        setFetchTimeButton.setOnClickListener(v -> {
 
-                final Calendar currentDate = Calendar.getInstance();
-                Context context = getApplicationContext();
+            final Calendar currentDate = Calendar.getInstance();
+            Context context = getApplicationContext();
 
-                if (context instanceof GBApplication) {
-                    GBApplication gbApp = (GBApplication) context;
-                    final List<GBDevice> devices = gbApp.getDeviceManager().getSelectedDevices();
-                    if(devices.size() == 0){
-                        GB.toast("Device not selected/connected", Toast.LENGTH_LONG, GB.INFO);
-                        return;
-                    }
-                    new DatePickerDialog(DebugActivity.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            Calendar date = Calendar.getInstance();
-                            date.set(year, monthOfYear, dayOfMonth);
-
-                            long timestamp = date.getTimeInMillis() - 1000;
-                            GB.toast("Setting lastSyncTimeMillis: " + timestamp, Toast.LENGTH_LONG, GB.INFO);
-
-                            for(GBDevice device : devices){
-                                SharedPreferences.Editor editor = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).edit();
-                                editor.remove("lastSyncTimeMillis"); //FIXME: key reconstruction is BAD
-                                editor.putLong("lastSyncTimeMillis", timestamp);
-                                editor.apply();
-                            }
-                        }
-                    }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+            if (context instanceof GBApplication) {
+                GBApplication gbApp = (GBApplication) context;
+                final List<GBDevice> devices = gbApp.getDeviceManager().getSelectedDevices();
+                if (devices.size() == 0) {
+                    GB.toast("Device not selected/connected", Toast.LENGTH_LONG, GB.INFO);
+                    return;
                 }
+                new DatePickerDialog(DebugActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        Calendar date = Calendar.getInstance();
+                        date.set(year, monthOfYear, dayOfMonth);
 
+                        long timestamp = date.getTimeInMillis() - 1000;
+                        GB.toast("Setting lastSyncTimeMillis: " + timestamp, Toast.LENGTH_LONG, GB.INFO);
 
+                        for (GBDevice device : devices) {
+                            SharedPreferences.Editor editor = GBApplication.getDeviceSpecificSharedPrefs(device.getAddress()).edit();
+                            editor.remove("lastSyncTimeMillis"); //FIXME: key reconstruction is BAD
+                            editor.putLong("lastSyncTimeMillis", timestamp);
+                            editor.apply();
+                        }
+                    }
+                }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
             }
+
+
         });
 
         Button setWeatherButton = findViewById(R.id.setWeatherButton);
-        setWeatherButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Weather.getInstance().getWeatherSpec() == null) {
-                    final WeatherSpec weatherSpec = new WeatherSpec();
-                    weatherSpec.forecasts = new ArrayList<>();
+        setWeatherButton.setOnClickListener(v -> {
+            if (Weather.getInstance().getWeatherSpec() == null) {
+                final WeatherSpec weatherSpec = new WeatherSpec();
+                weatherSpec.forecasts = new ArrayList<>();
 
-                    weatherSpec.location = "Green Hill";
-                    weatherSpec.currentConditionCode = 601; // snow
-                    weatherSpec.currentCondition = Weather.getConditionString(weatherSpec.currentConditionCode);
+                weatherSpec.location = "Green Hill";
+                weatherSpec.currentConditionCode = 601; // snow
+                weatherSpec.currentCondition = Weather.getConditionString(weatherSpec.currentConditionCode);
 
-                    weatherSpec.currentTemp = 15 + 273;
-                    weatherSpec.currentHumidity = 30;
+                weatherSpec.currentTemp = 15 + 273;
+                weatherSpec.currentHumidity = 30;
 
-                    weatherSpec.windSpeed = 10;
-                    weatherSpec.windDirection = 12;
-                    weatherSpec.timestamp = (int) (System.currentTimeMillis() / 1000);
-                    weatherSpec.todayMinTemp = 10 + 273;
-                    weatherSpec.todayMaxTemp = 25 + 273;
+                weatherSpec.windSpeed = 10;
+                weatherSpec.windDirection = 12;
+                weatherSpec.timestamp = (int) (System.currentTimeMillis() / 1000);
+                weatherSpec.todayMinTemp = 10 + 273;
+                weatherSpec.todayMaxTemp = 25 + 273;
 
-                    for (int i = 0; i < 5; i++) {
-                        final WeatherSpec.Forecast gbForecast = new WeatherSpec.Forecast();
-                        gbForecast.minTemp = 10 + i + 273;
-                        gbForecast.maxTemp = 25 + i + 273;
+                for (int i = 0; i < 5; i++) {
+                    final WeatherSpec.Forecast gbForecast = new WeatherSpec.Forecast();
+                    gbForecast.minTemp = 10 + i + 273;
+                    gbForecast.maxTemp = 25 + i + 273;
 
-                        gbForecast.conditionCode = 800; // clear
-                        weatherSpec.forecasts.add(gbForecast);
-                    }
-
-                    Weather.getInstance().setWeatherSpec(weatherSpec);
+                    gbForecast.conditionCode = 800; // clear
+                    weatherSpec.forecasts.add(gbForecast);
                 }
 
-                GBApplication.deviceService().onSendWeather(Weather.getInstance().getWeatherSpec());
+                Weather.getInstance().setWeatherSpec(weatherSpec);
             }
+
+            GBApplication.deviceService().onSendWeather(Weather.getInstance().getWeatherSpec());
         });
 
         Button setMusicInfoButton = findViewById(R.id.setMusicInfoButton);
-        setMusicInfoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicSpec musicSpec = new MusicSpec();
-                String testString = editContent.getText().toString();
-                musicSpec.artist = testString + "(artist)";
-                musicSpec.album = testString + "(album)";
-                musicSpec.track = testString + "(track)";
-                musicSpec.duration = 10;
-                musicSpec.trackCount = 5;
-                musicSpec.trackNr = 2;
+        setMusicInfoButton.setOnClickListener(v -> {
+            MusicSpec musicSpec = new MusicSpec();
+            String testString = editContent.getText().toString();
+            musicSpec.artist = testString + "(artist)";
+            musicSpec.album = testString + "(album)";
+            musicSpec.track = testString + "(track)";
+            musicSpec.duration = 10;
+            musicSpec.trackCount = 5;
+            musicSpec.trackNr = 2;
 
-                GBApplication.deviceService().onSetMusicInfo(musicSpec);
+            GBApplication.deviceService().onSetMusicInfo(musicSpec);
 
-                MusicStateSpec stateSpec = new MusicStateSpec();
-                stateSpec.position = 0;
-                stateSpec.state = 0x01; // playing
-                stateSpec.playRate = 100;
-                stateSpec.repeat = 1;
-                stateSpec.shuffle = 1;
+            MusicStateSpec stateSpec = new MusicStateSpec();
+            stateSpec.position = 0;
+            stateSpec.state = 0x01; // playing
+            stateSpec.playRate = 100;
+            stateSpec.repeat = 1;
+            stateSpec.shuffle = 1;
 
-                GBApplication.deviceService().onSetMusicState(stateSpec);
-            }
+            GBApplication.deviceService().onSetMusicState(stateSpec);
         });
 
         Button setTimeButton = findViewById(R.id.setTimeButton);
-        setTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GBApplication.deviceService().onSetTime();
-            }
-        });
+        setTimeButton.setOnClickListener(v -> GBApplication.deviceService().onSetTime());
 
         Button testNotificationButton = findViewById(R.id.testNotificationButton);
-        testNotificationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testNotification();
-            }
-        });
+        testNotificationButton.setOnClickListener(v -> testNotification());
 
         Button testPebbleKitNotificationButton = findViewById(R.id.testPebbleKitNotificationButton);
-        testPebbleKitNotificationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testPebbleKitNotification();
-            }
-        });
+        testPebbleKitNotificationButton.setOnClickListener(v -> testPebbleKitNotification());
 
         Button fetchDebugLogsButton = findViewById(R.id.fetchDebugLogsButton);
-        fetchDebugLogsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GBApplication.deviceService().onFetchRecordedData(RecordedDataTypes.TYPE_DEBUGLOGS);
-            }
-        });
+        fetchDebugLogsButton.setOnClickListener(v -> GBApplication.deviceService().onFetchRecordedData(RecordedDataTypes.TYPE_DEBUGLOGS));
 
         Button testNewFunctionalityButton = findViewById(R.id.testNewFunctionality);
-        testNewFunctionalityButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testNewFunctionality();
-            }
-        });
+        testNewFunctionalityButton.setOnClickListener(v -> testNewFunctionality());
 
         Button shareLogButton = findViewById(R.id.shareLog);
-        shareLogButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(DebugActivity.this);
-                Prefs prefs = new Prefs(sharedPrefs);
-                boolean logging_enabled = prefs.getBoolean("log_to_file", false);
-                if (logging_enabled) {
-                    showLogSharingWarning();
-                } else {
-                    showLogSharingNotEnabledAlert();
-                }
+        shareLogButton.setOnClickListener(v -> {
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(DebugActivity.this);
+            Prefs prefs = new Prefs(sharedPrefs);
+            boolean logging_enabled = prefs.getBoolean("log_to_file", false);
+            if (logging_enabled) {
+                showLogSharingWarning();
+            } else {
+                showLogSharingNotEnabledAlert();
             }
         });
 
         Button showWidgetsButton = findViewById(R.id.showWidgetsButton);
-        showWidgetsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAllRegisteredAppWidgets();
-            }
-        });
+        showWidgetsButton.setOnClickListener(v -> showAllRegisteredAppWidgets());
 
         Button unregisterWidgetsButton = findViewById(R.id.deleteWidgets);
-        unregisterWidgetsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                unregisterAllRegisteredAppWidgets();
-            }
-        });
+        unregisterWidgetsButton.setOnClickListener(v -> unregisterAllRegisteredAppWidgets());
 
         Button showWidgetsPrefsButton = findViewById(R.id.showWidgetsPrefs);
-        showWidgetsPrefsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAppWidgetsPrefs();
-            }
-        });
+        showWidgetsPrefsButton.setOnClickListener(v -> showAppWidgetsPrefs());
 
         Button deleteWidgetsPrefsButton = findViewById(R.id.deleteWidgetsPrefs);
-        deleteWidgetsPrefsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteWidgetsPrefs();
-            }
-        });
+        deleteWidgetsPrefsButton.setOnClickListener(v -> deleteWidgetsPrefs());
 
         Button removeDevicePreferencesButton = findViewById(R.id.removeDevicePreferences);
-        removeDevicePreferencesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(DebugActivity.this)
-                        .setCancelable(true)
-                        .setTitle(R.string.debugactivity_confirm_remove_device_preferences_title)
-                        .setMessage(R.string.debugactivity_confirm_remove_device_preferences)
-                        .setPositiveButton(R.string.ok, (dialog, which) -> {
-                            final GBApplication gbApp = (GBApplication) getApplicationContext();
-                            final List<GBDevice> devices = gbApp.getDeviceManager().getSelectedDevices();
-                            for(final GBDevice device : devices){
-                                GBApplication.deleteDeviceSpecificSharedPrefs(device.getAddress());
-                            }
-                        })
-                        .setNegativeButton(R.string.Cancel, (dialog, which) -> {})
-                        .show();
-            }
-        });
+        removeDevicePreferencesButton.setOnClickListener(v -> new AlertDialog.Builder(DebugActivity.this)
+                .setCancelable(true)
+                .setTitle(R.string.debugactivity_confirm_remove_device_preferences_title)
+                .setMessage(R.string.debugactivity_confirm_remove_device_preferences)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    final GBApplication gbApp = (GBApplication) getApplicationContext();
+                    final List<GBDevice> devices = gbApp.getDeviceManager().getSelectedDevices();
+                    for (final GBDevice device : devices) {
+                        GBApplication.deleteDeviceSpecificSharedPrefs(device.getAddress());
+                    }
+                })
+                .setNegativeButton(R.string.Cancel, (dialog, which) -> {
+                })
+                .show());
 
         Button runDebugFunction = findViewById(R.id.runDebugFunction);
-        runDebugFunction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //SharedPreferences.Editor editor = GBApplication.getPrefs().getPreferences().edit();
-                //editor.remove("notification_list_is_blacklist").apply();
-            }
+        runDebugFunction.setOnClickListener(v -> {
+            //SharedPreferences.Editor editor = GBApplication.getPrefs().getPreferences().edit();
+            //editor.remove("notification_list_is_blacklist").apply();
         });
 
         Button addDeviceButtonDebug = findViewById(R.id.addDeviceButtonDebug);
-        addDeviceButtonDebug.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LinkedHashMap<String, Pair<Long, Integer>> allDevices;
-                allDevices = getAllSupportedDevices(getApplicationContext());
+        addDeviceButtonDebug.setOnClickListener(v -> {
+            LinkedHashMap<String, Pair<Long, Integer>> allDevices;
+            allDevices = getAllSupportedDevices(getApplicationContext());
 
-                final LinearLayout linearLayout = new LinearLayout(DebugActivity.this);
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
+            final LinearLayout linearLayout = new LinearLayout(DebugActivity.this);
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-                final LinearLayout macLayout = new LinearLayout(DebugActivity.this);
-                macLayout.setOrientation(LinearLayout.HORIZONTAL);
-                macLayout.setPadding(20, 0, 20, 0);
+            final LinearLayout macLayout = new LinearLayout(DebugActivity.this);
+            macLayout.setOrientation(LinearLayout.HORIZONTAL);
+            macLayout.setPadding(20, 0, 20, 0);
 
-                final TextView textView = new TextView(DebugActivity.this);
-                textView.setText("MAC Address: ");
-                final EditText editText = new EditText(DebugActivity.this);
-                selectedTestDeviceMAC = randomMac();
-                editText.setText(selectedTestDeviceMAC);
-                editText.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            final TextView textView = new TextView(DebugActivity.this);
+            textView.setText("MAC Address: ");
+            final EditText editText = new EditText(DebugActivity.this);
+            selectedTestDeviceMAC = randomMac();
+            editText.setText(selectedTestDeviceMAC);
+            editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-                        selectedTestDeviceMAC = editable.toString();
-
-                    }
-                });
-
-                macLayout.addView(textView);
-                macLayout.addView(editText);
-
-                final Spinner deviceListSpinner = new Spinner(DebugActivity.this);
-                ArrayList<SpinnerWithIconItem> deviceListArray = new ArrayList<>();
-                for (Map.Entry<String, Pair<Long, Integer>> item : allDevices.entrySet()) {
-                    deviceListArray.add(new SpinnerWithIconItem(item.getKey(), item.getValue().first, item.getValue().second));
                 }
-                final SpinnerWithIconAdapter deviceListAdapter = new SpinnerWithIconAdapter(DebugActivity.this,
-                        R.layout.spinner_with_image_layout, R.id.spinner_item_text, deviceListArray);
-                deviceListSpinner.setAdapter(deviceListAdapter);
-                addListenerOnSpinnerDeviceSelection(deviceListSpinner);
 
-                linearLayout.addView(deviceListSpinner);
-                linearLayout.addView(macLayout);
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                new AlertDialog.Builder(DebugActivity.this)
-                        .setCancelable(true)
-                        .setTitle(R.string.add_test_device)
-                        .setView(linearLayout)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                createTestDevice(DebugActivity.this, selectedTestDeviceKey, selectedTestDeviceMAC);
-                            }
-                        })
-                        .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .show();
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    selectedTestDeviceMAC = editable.toString();
+
+                }
+            });
+
+            macLayout.addView(textView);
+            macLayout.addView(editText);
+
+            final Spinner deviceListSpinner = new Spinner(DebugActivity.this);
+            ArrayList<SpinnerWithIconItem> deviceListArray = new ArrayList<>();
+            for (Map.Entry<String, Pair<Long, Integer>> item : allDevices.entrySet()) {
+                deviceListArray.add(new SpinnerWithIconItem(item.getKey(), item.getValue().first, item.getValue().second));
             }
+            final SpinnerWithIconAdapter deviceListAdapter = new SpinnerWithIconAdapter(DebugActivity.this,
+                    R.layout.spinner_with_image_layout, R.id.spinner_item_text, deviceListArray);
+            deviceListSpinner.setAdapter(deviceListAdapter);
+            addListenerOnSpinnerDeviceSelection(deviceListSpinner);
+
+            linearLayout.addView(deviceListSpinner);
+            linearLayout.addView(macLayout);
+
+            new AlertDialog.Builder(DebugActivity.this)
+                    .setCancelable(true)
+                    .setTitle(R.string.add_test_device)
+                    .setView(linearLayout)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            createTestDevice(DebugActivity.this, selectedTestDeviceKey, selectedTestDeviceMAC);
+                        }
+                    })
+                    .setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .show();
         });
 
         CheckBox activity_list_debug_extra_time_range = findViewById(R.id.activity_list_debug_extra_time_range);
@@ -594,58 +492,37 @@ public class DebugActivity extends AbstractGBActivity {
         });
 
         Button startFitnessAppTracking = findViewById(R.id.startFitnessAppTracking);
-        startFitnessAppTracking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OpenTracksController.startRecording(DebugActivity.this);
-            }
-        });
+        startFitnessAppTracking.setOnClickListener(v -> OpenTracksController.startRecording(DebugActivity.this));
 
         Button stopFitnessAppTracking = findViewById(R.id.stopFitnessAppTracking);
-        stopFitnessAppTracking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OpenTracksController.stopRecording(DebugActivity.this);
-            }
-        });
+        stopFitnessAppTracking.setOnClickListener(v -> OpenTracksController.stopRecording(DebugActivity.this));
 
         Button stopPhoneGpsLocationListener = findViewById(R.id.stopPhoneGpsLocationListener);
-        stopPhoneGpsLocationListener.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GBLocationManager.stopAll(getBaseContext());
-            }
-        });
+        stopPhoneGpsLocationListener.setOnClickListener(v -> GBLocationManager.stopAll(getBaseContext()));
 
         Button showCompanionDevices = findViewById(R.id.showCompanionDevices);
         showCompanionDevices.setVisibility(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? View.VISIBLE : View.GONE);
-        showCompanionDevices.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                    LOG.warn("Android version < O, companion devices not supported");
-                    return;
-                }
-
-                final CompanionDeviceManager manager = (CompanionDeviceManager) GBApplication.getContext().getSystemService(Context.COMPANION_DEVICE_SERVICE);
-                final List<String> associations = new ArrayList<>(manager.getAssociations());
-                Collections.sort(associations);
-                String companionDevicesList = String.format(Locale.ROOT, "%d companion devices", associations.size());
-                if (!associations.isEmpty()) {
-                    companionDevicesList += "\n\n" + StringUtils.join("\n", associations.toArray(new String[0]));
-                }
-
-                new AlertDialog.Builder(DebugActivity.this)
-                        .setCancelable(false)
-                        .setTitle("Companion Devices")
-                        .setMessage(companionDevicesList)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .show();
+        showCompanionDevices.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                LOG.warn("Android version < O, companion devices not supported");
+                return;
             }
+
+            final CompanionDeviceManager manager = (CompanionDeviceManager) GBApplication.getContext().getSystemService(Context.COMPANION_DEVICE_SERVICE);
+            final List<String> associations = new ArrayList<>(manager.getAssociations());
+            Collections.sort(associations);
+            String companionDevicesList = String.format(Locale.ROOT, "%d companion devices", associations.size());
+            if (!associations.isEmpty()) {
+                companionDevicesList += "\n\n" + StringUtils.join("\n", associations.toArray(new String[0]));
+            }
+
+            new AlertDialog.Builder(DebugActivity.this)
+                    .setCancelable(false)
+                    .setTitle("Companion Devices")
+                    .setMessage(companionDevicesList)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    })
+                    .show();
         });
 
         Button showStatusFitnessAppTracking = findViewById(R.id.showStatusFitnessAppTracking);
@@ -662,12 +539,7 @@ public class DebugActivity extends AbstractGBActivity {
                         .setCancelable(false)
                         .setTitle("openTracksObserver Status")
                         .setMessage("Starting openTracksObserver watcher, waiting for an update, refreshing every: " + delay + "ms")
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                handler.removeCallbacks(runnable);
-                            }
-                        });
+                        .setPositiveButton(R.string.ok, (dialog, which) -> handler.removeCallbacks(runnable));
                 final AlertDialog alert = fitnesStatusBuilder.show();
 
 
@@ -701,13 +573,12 @@ public class DebugActivity extends AbstractGBActivity {
     }
 
 
-
     @Override
     protected void onPause() {
         super.onPause();
-        if (dataLossSave != null ) {
+        if (dataLossSave != null) {
             dataLossSave.clear();
-            dataLossSave = null ;
+            dataLossSave = null;
         }
         dataLossSave = new Bundle();
         dataLossSave.putString("editContent", editContent.getText().toString());
@@ -716,9 +587,9 @@ public class DebugActivity extends AbstractGBActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (dataLossSave != null ) {
+        if (dataLossSave != null) {
             editContent.setText(dataLossSave.getString("editContent", ""));
-        }else{
+        } else {
             editContent.setText("Test");
         }
     }
@@ -883,7 +754,7 @@ public class DebugActivity extends AbstractGBActivity {
         }
         DeviceType deviceType = DeviceType.fromKey((int) deviceKey);
         try (
-            DBHandler db = GBApplication.acquireDB()) {
+                DBHandler db = GBApplication.acquireDB()) {
             DaoSession daoSession = db.getDaoSession();
             GBDevice gbDevice = new GBDevice(deviceMac, deviceType.name(), "", null, deviceType);
             gbDevice.setFirmwareVersion("N/A");
@@ -927,7 +798,7 @@ public class DebugActivity extends AbstractGBActivity {
             long deviceId = deviceType.getKey();
             newMap.put(name, new Pair(deviceId, icon));
         }
-        TreeMap <String, Pair<Long, Integer>> sortedMap = new TreeMap<>(newMap);
+        TreeMap<String, Pair<Long, Integer>> sortedMap = new TreeMap<>(newMap);
         newMap = new LinkedHashMap<>(1);
         newMap.put(app.getString(R.string.widget_settings_select_device_title), new Pair(SELECT_DEVICE, R.drawable.ic_device_unknown));
         newMap.putAll(sortedMap);

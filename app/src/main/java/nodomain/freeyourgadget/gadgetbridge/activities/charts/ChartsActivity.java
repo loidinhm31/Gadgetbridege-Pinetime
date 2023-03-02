@@ -186,58 +186,25 @@ public class ChartsActivity extends AbstractGBFragmentActivity implements Charts
 
         dateBar = findViewById(R.id.charts_date_bar);
         mDateControl = findViewById(R.id.charts_text_date);
-        mDateControl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String detailedDuration = formatDetailedDuration();
-                new ShowDurationDialog(detailedDuration, ChartsActivity.this).show();
-            }
+        mDateControl.setOnClickListener(v -> {
+            String detailedDuration = formatDetailedDuration();
+            new ShowDurationDialog(detailedDuration, ChartsActivity.this).show();
         });
 
         Button mPrevButton = findViewById(R.id.charts_previous_day);
-        mPrevButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleButtonClicked(DATE_PREV_DAY);
-            }
-        });
+        mPrevButton.setOnClickListener(v -> handleButtonClicked(DATE_PREV_DAY));
         Button mNextButton = findViewById(R.id.charts_next_day);
-        mNextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleButtonClicked(DATE_NEXT_DAY);
-            }
-        });
+        mNextButton.setOnClickListener(v -> handleButtonClicked(DATE_NEXT_DAY));
 
         Button mPrevWeekButton = findViewById(R.id.charts_previous_week);
-        mPrevWeekButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleButtonClicked(DATE_PREV_WEEK);
-            }
-        });
+        mPrevWeekButton.setOnClickListener(v -> handleButtonClicked(DATE_PREV_WEEK));
         Button mNextWeekButton = findViewById(R.id.charts_next_week);
-        mNextWeekButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleButtonClicked(DATE_NEXT_WEEK);
-            }
-        });
+        mNextWeekButton.setOnClickListener(v -> handleButtonClicked(DATE_NEXT_WEEK));
 
         Button mPrevMonthButton = findViewById(R.id.charts_previous_month);
-        mPrevMonthButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleButtonClicked(DATE_PREV_MONTH);
-            }
-        });
+        mPrevMonthButton.setOnClickListener(v -> handleButtonClicked(DATE_PREV_MONTH));
         Button mNextMonthButton = findViewById(R.id.charts_next_month);
-        mNextMonthButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleButtonClicked(DATE_NEXT_MONTH);
-            }
-        });
+        mNextMonthButton.setOnClickListener(v -> handleButtonClicked(DATE_NEXT_MONTH));
 
 
     }

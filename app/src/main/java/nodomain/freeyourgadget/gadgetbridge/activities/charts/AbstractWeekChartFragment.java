@@ -258,13 +258,10 @@ public abstract class AbstractWeekChartFragment extends AbstractChartFragment {
 
         stepsStreaksButton = rootView.findViewById(R.id.steps_streaks_button);
         if (enableStepStreaksButton()) {
-            stepsStreaksButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-                    StepStreaksDashboard stepStreaksDashboard = StepStreaksDashboard.newInstance(getGoal(), getChartsHost().getDevice());
-                    stepStreaksDashboard.show(fm, "steps_streaks_dashboard");
-                }
+            stepsStreaksButton.setOnClickListener(v -> {
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                StepStreaksDashboard stepStreaksDashboard = StepStreaksDashboard.newInstance(getGoal(), getChartsHost().getDevice());
+                stepStreaksDashboard.show(fm, "steps_streaks_dashboard");
             });
         }
 

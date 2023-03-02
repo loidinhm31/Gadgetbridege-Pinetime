@@ -83,40 +83,37 @@ public class ConfigureWorldClocks extends AbstractGBActivity {
         updateWorldClocksFromDB();
 
         final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final DeviceCoordinator coordinator = DeviceHelper.getInstance().getCoordinator(gbDevice);
+        fab.setOnClickListener(v -> {
+            final DeviceCoordinator coordinator = DeviceHelper.getInstance().getCoordinator(gbDevice);
 
-                int deviceSlots = coordinator.getWorldClocksSlotCount();
+            int deviceSlots = coordinator.getWorldClocksSlotCount();
 
-                if (mGBWorldClockListAdapter.getItemCount() >= deviceSlots) {
-                    // No more free slots
-                    new AlertDialog.Builder(v.getContext())
-                            .setTitle(R.string.world_clock_no_free_slots_title)
-                            .setMessage(getBaseContext().getString(R.string.world_clock_no_free_slots_description, String.format(Locale.getDefault(), "%d", deviceSlots)))
-                            .setIcon(R.drawable.ic_warning)
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(final DialogInterface dialog, final int whichButton) {
-                                }
-                            })
-                            .show();
-                    return;
-                }
-
-                final WorldClock worldClock;
-                try (DBHandler db = GBApplication.acquireDB()) {
-                    final DaoSession daoSession = db.getDaoSession();
-                    final Device device = DBHelper.getDevice(gbDevice, daoSession);
-                    final User user = DBHelper.getUser(daoSession);
-                    worldClock = createDefaultWorldClock(device, user);
-                } catch (final Exception e) {
-                    LOG.error("Error accessing database", e);
-                    return;
-                }
-
-                configureWorldClock(worldClock);
+            if (mGBWorldClockListAdapter.getItemCount() >= deviceSlots) {
+                // No more free slots
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle(R.string.world_clock_no_free_slots_title)
+                        .setMessage(getBaseContext().getString(R.string.world_clock_no_free_slots_description, String.format(Locale.getDefault(), "%d", deviceSlots)))
+                        .setIcon(R.drawable.ic_warning)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialog, final int whichButton) {
+                            }
+                        })
+                        .show();
+                return;
             }
+
+            final WorldClock worldClock;
+            try (DBHandler db = GBApplication.acquireDB()) {
+                final DaoSession daoSession = db.getDaoSession();
+                final Device device = DBHelper.getDevice(gbDevice, daoSession);
+                final User user = DBHelper.getUser(daoSession);
+                worldClock = createDefaultWorldClock(device, user);
+            } catch (final Exception e) {
+                LOG.error("Error accessing database", e);
+                return;
+            }
+
+            configureWorldClock(worldClock);
         });
     }
 

@@ -121,26 +121,13 @@ public class GBDeviceAppAdapter extends RecyclerView.Adapter<GBDeviceAppAdapter.
                 holder.mDeviceImageView.setImageResource(R.drawable.ic_watchapp);
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mParentFragment.onItemClick(view, deviceApp);
-            }
-        });
+        holder.itemView.setOnClickListener(view -> mParentFragment.onItemClick(view, deviceApp));
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                return mParentFragment.openPopupMenu(view, deviceApp);
-            }
-        });
+        holder.itemView.setOnLongClickListener(view -> mParentFragment.openPopupMenu(view, deviceApp));
 
-        holder.mDragHandle.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                mParentFragment.startDragging(holder);
-                return true;
-            }
+        holder.mDragHandle.setOnTouchListener((view, motionEvent) -> {
+            mParentFragment.startDragging(holder);
+            return true;
         });
 
     }

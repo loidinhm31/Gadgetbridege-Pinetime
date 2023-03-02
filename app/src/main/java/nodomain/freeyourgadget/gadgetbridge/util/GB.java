@@ -18,6 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -289,6 +290,7 @@ public class GB {
         notify(NOTIFICATION_ID, notification, context);
     }
 
+    @SuppressLint("MissingPermission")
     public static void notify(int id, @NonNull Notification notification, Context context) {
         createNotificationChannels(context);
 

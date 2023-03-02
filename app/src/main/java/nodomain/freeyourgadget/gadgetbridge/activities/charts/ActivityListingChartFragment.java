@@ -84,12 +84,7 @@ public class ActivityListingChartFragment extends AbstractChartFragment {
         FloatingActionButton fab;
         fab = rootView.findViewById(R.id.fab);
         fab.setVisibility(View.VISIBLE);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDashboard(tsDateTo, getChartsHost().getDevice());
-            }
-        });
+        fab.setOnClickListener(v -> showDashboard(tsDateTo, getChartsHost().getDevice()));
 
         refresh();
         return rootView;
@@ -202,12 +197,7 @@ public class ActivityListingChartFragment extends AbstractChartFragment {
         View snackbarView = snackbar.getView();
         snackbarView.setBackgroundColor(getContext().getResources().getColor(R.color.accent));
         snackbar.setActionTextColor(Color.WHITE);
-        snackbar.setAction(getString(R.string.dialog_hide).toUpperCase(), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        snackbar.dismiss();
-                    }
-                }
+        snackbar.setAction(getString(R.string.dialog_hide).toUpperCase(), view -> snackbar.dismiss()
         );
         snackbar.show();
     }

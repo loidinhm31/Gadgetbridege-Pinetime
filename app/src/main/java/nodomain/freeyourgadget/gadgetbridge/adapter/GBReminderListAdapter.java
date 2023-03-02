@@ -70,30 +70,18 @@ public class GBReminderListAdapter extends RecyclerView.Adapter<GBReminderListAd
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         final Reminder reminder = reminderList.get(position);
 
-        holder.container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ConfigureReminders) mContext).configureReminder(reminder);
-            }
-        });
+        holder.container.setOnClickListener(v -> ((ConfigureReminders) mContext).configureReminder(reminder));
 
-        holder.container.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                new AlertDialog.Builder(v.getContext())
-                        .setTitle(R.string.reminder_delete_confirm_title)
-                        .setMessage(R.string.reminder_delete_confirm_description)
-                        .setIcon(R.drawable.ic_warning)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(final DialogInterface dialog, final int whichButton) {
-                                ((ConfigureReminders) mContext).deleteReminder(reminder);
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .show();
+        holder.container.setOnLongClickListener(v -> {
+            new AlertDialog.Builder(v.getContext())
+                    .setTitle(R.string.reminder_delete_confirm_title)
+                    .setMessage(R.string.reminder_delete_confirm_description)
+                    .setIcon(R.drawable.ic_warning)
+                    .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> ((ConfigureReminders) mContext).deleteReminder(reminder))
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
 
-                return true;
-            }
+            return true;
         });
 
         holder.reminderMessage.setText(reminder.getMessage());

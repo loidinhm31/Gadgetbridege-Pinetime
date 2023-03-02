@@ -95,48 +95,35 @@ public class ReminderDetails extends AbstractGBActivity implements TimePickerDia
         repeatAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, repeatStrings);
 
         final View cardRepeat = findViewById(R.id.card_repeat);
-        cardRepeat.setOnClickListener(new View.OnClickListener() {
+        cardRepeat.setOnClickListener(view -> new AlertDialog.Builder(ReminderDetails.this).setAdapter(repeatAdapter, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                new AlertDialog.Builder(ReminderDetails.this).setAdapter(repeatAdapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        reminder.setRepetition(i);
-                        updateUiFromReminder();
-                    }
-                }).create().show();
+            public void onClick(DialogInterface dialogInterface, int i) {
+                reminder.setRepetition(i);
+                updateUiFromReminder();
             }
-        });
+        }).create().show());
 
         final View cardDate = findViewById(R.id.card_date);
-        cardDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final Calendar date = new GregorianCalendar();
-                date.setTime(reminder.getDate());
-                new DatePickerDialog(
-                        ReminderDetails.this,
-                        ReminderDetails.this,
-                        date.get(Calendar.YEAR),
-                        date.get(Calendar.MONTH),
-                        date.get(Calendar.DAY_OF_MONTH)
-                ).show();
-            }
+        cardDate.setOnClickListener(view -> {
+            final Calendar date = new GregorianCalendar();
+            date.setTime(reminder.getDate());
+            new DatePickerDialog(
+                    ReminderDetails.this,
+                    ReminderDetails.this,
+                    date.get(Calendar.YEAR),
+                    date.get(Calendar.MONTH),
+                    date.get(Calendar.DAY_OF_MONTH)
+            ).show();
         });
 
         final View cardTime = findViewById(R.id.card_time);
-        cardTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new TimePickerDialog(
-                        ReminderDetails.this,
-                        ReminderDetails.this,
-                        reminder.getDate().getHours(),
-                        reminder.getDate().getMinutes(),
-                        DateFormat.is24HourFormat(GBApplication.getContext())
-                ).show();
-            }
-        });
+        cardTime.setOnClickListener(view -> new TimePickerDialog(
+                ReminderDetails.this,
+                ReminderDetails.this,
+                reminder.getDate().getHours(),
+                reminder.getDate().getMinutes(),
+                DateFormat.is24HourFormat(GBApplication.getContext())
+        ).show());
 
         reminderText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(coordinator.getMaximumReminderMessageLength())});
         reminderText.addTextChangedListener(new TextWatcher() {
@@ -155,13 +142,10 @@ public class ReminderDetails extends AbstractGBActivity implements TimePickerDia
         });
 
         final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateReminder();
-                ReminderDetails.this.setResult(1);
-                finish();
-            }
+        fab.setOnClickListener(view -> {
+            updateReminder();
+            ReminderDetails.this.setResult(1);
+            finish();
         });
 
         updateUiFromReminder();

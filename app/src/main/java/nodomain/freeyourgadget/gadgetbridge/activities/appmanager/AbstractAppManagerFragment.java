@@ -17,7 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.activities.appmanager;
 
-import static nodomain.freeyourgadget.gadgetbridge.service.devices.qhybrid.QHybridSupport.QHYBRID_ACTION_DOWNLOADED_FILE;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -25,7 +24,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -37,6 +35,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.Toast;
+
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -50,32 +54,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.ExternalPebbleJSActivity;
 import nodomain.freeyourgadget.gadgetbridge.adapter.GBDeviceAppAdapter;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
-import nodomain.freeyourgadget.gadgetbridge.devices.qhybrid.FileManagementActivity;
-import nodomain.freeyourgadget.gadgetbridge.devices.qhybrid.FossilFileReader;
-import nodomain.freeyourgadget.gadgetbridge.devices.qhybrid.FossilHRInstallHandler;
-import nodomain.freeyourgadget.gadgetbridge.devices.qhybrid.QHybridConstants;
-import nodomain.freeyourgadget.gadgetbridge.devices.qhybrid.QHybridCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceApp;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
-import nodomain.freeyourgadget.gadgetbridge.service.devices.pebble.PebbleProtocol;
 import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper;
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GridAutoFitLayoutManager;
-import nodomain.freeyourgadget.gadgetbridge.util.PebbleUtils;
-import nodomain.freeyourgadget.gadgetbridge.util.Version;
 
 
 public abstract class AbstractAppManagerFragment extends Fragment {
@@ -142,11 +133,9 @@ public abstract class AbstractAppManagerFragment extends Fragment {
 
             GBDeviceApp app = new GBDeviceApp(uuid, appName, appCreator, appVersion, appType, previewImage);
             app.setOnDevice(true);
-            if ((mGBDevice.getType() == DeviceType.FOSSILQHYBRID) && (app.getType() == GBDeviceApp.Type.WATCHFACE) && (!QHybridConstants.HYBRIDHR_WATCHFACE_VERSION.equals(appVersion))) {
-                app.setUpToDate(false);
-            }
+
             try {
-                if ((app.getType() == GBDeviceApp.Type.APP_GENERIC) && ((new Version(app.getVersion())).smallerThan(new Version(QHybridConstants.KNOWN_WAPP_VERSIONS.get(app.getName()))))) {
+                if (app.getType() == GBDeviceApp.Type.APP_GENERIC) {
                     app.setUpToDate(false);
                 }
             } catch (IllegalArgumentException e) {
@@ -155,12 +144,6 @@ public abstract class AbstractAppManagerFragment extends Fragment {
             }
             if (filterApp(app)) {
                 appList.add(app);
-            }
-        }
-        if (mGBDevice.getType() == DeviceType.FOSSILQHYBRID) {
-            List<GBDeviceApp> systemApps = getSystemAppsInCategory();
-            for (GBDeviceApp systemApp : systemApps) {
-                appList.add(systemApp);
             }
         }
     }
@@ -199,39 +182,6 @@ public abstract class AbstractAppManagerFragment extends Fragment {
                     mGBDeviceAppAdapter.notifyDataSetChanged();
                     break;
                 }
-                case QHYBRID_ACTION_DOWNLOADED_FILE: {
-                    if (!intent.getBooleanExtra("EXTRA_SUCCESS", false)) {
-                        LOG.warn("wapp download was not successful");
-                        GB.toast(context.getString(R.string.appmanager_download_app_error), Toast.LENGTH_LONG, GB.ERROR);
-                        break;
-                    }
-                    if (!intent.getBooleanExtra("EXTRA_TOCACHE", false)) {
-                        break;
-                    }
-                    String path = intent.getStringExtra("EXTRA_PATH");
-                    String name = intent.getStringExtra("EXTRA_NAME");
-                    LOG.info("Attempting to add downloaded app " + name + " to cache");
-                    FossilFileReader fileReader;
-                    try {
-                        fileReader = new FossilFileReader(Uri.fromFile(new File(path)), context);
-                    } catch (IOException e) {
-                        LOG.warn("Could not find downloaded wapp", e);
-                        break;
-                    }
-                    if (FossilHRInstallHandler.saveAppInCache(fileReader, fileReader.getBackground(), fileReader.getPreview(), mCoordinator, context)) {
-                        LOG.info("Successfully moved downloaded app " + name + " to cache");
-                        GB.toast(String.format(context.getString(R.string.appmanager_downloaded_to_cache), name), Toast.LENGTH_LONG, GB.INFO);
-                        if (isCacheManager()) {
-                            refreshList();
-                            mGBDeviceAppAdapter.notifyDataSetChanged();
-                        }
-                        (new File(path)).delete();
-                    } else {
-                        LOG.warn("Parsing downloaded wapp was not successful");
-                        GB.toast(context.getString(R.string.appmanager_download_app_error), Toast.LENGTH_LONG, GB.ERROR);
-                    }
-                    break;
-                }
             }
         }
     };
@@ -268,18 +218,7 @@ public abstract class AbstractAppManagerFragment extends Fragment {
                         String jsonstring = FileUtils.getStringFromFile(jsonFile);
                         JSONObject json = new JSONObject(jsonstring);
                         GBDeviceApp app = new GBDeviceApp(json, configFile.exists(), getAppPreviewImage(baseName));
-                        if (mGBDevice.getType() == DeviceType.FOSSILQHYBRID) {
-                            if ((app.getType() == GBDeviceApp.Type.WATCHFACE) && (!QHybridConstants.HYBRIDHR_WATCHFACE_VERSION.equals(app.getVersion()))) {
-                                app.setUpToDate(false);
-                            }
-                            try {
-                                if ((app.getType() == GBDeviceApp.Type.APP_GENERIC) && ((new Version(app.getVersion())).smallerThan(new Version(QHybridConstants.KNOWN_WAPP_VERSIONS.get(app.getName()))))) {
-                                    app.setUpToDate(false);
-                                }
-                            } catch (IllegalArgumentException e) {
-                                LOG.warn("Couldn't read app version", e);
-                            }
-                        }
+
                         cachedAppList.add(app);
                     } catch (Exception e) {
                         LOG.info("could not read json file for " + baseName);
@@ -312,28 +251,6 @@ public abstract class AbstractAppManagerFragment extends Fragment {
                                 cachedAppList.add(new GBDeviceApp(UUID.fromString("cf1e816a-9db0-4511-bbb8-f60c48ca8fac"), "Golf (System)", "Pebble Inc.", "", GBDeviceApp.Type.APP_SYSTEM));
                             }
                             */
-                            if (mGBDevice != null) {
-                                if (PebbleUtils.hasHealth(mGBDevice.getModel())) {
-                                    if (baseName.equals(PebbleProtocol.UUID_PEBBLE_HEALTH.toString())) {
-                                        cachedAppList.add(new GBDeviceApp(PebbleProtocol.UUID_PEBBLE_HEALTH, "Health (System)", "Pebble Inc.", "", GBDeviceApp.Type.APP_SYSTEM));
-                                        continue;
-                                    }
-                                }
-                                if (PebbleUtils.hasHRM(mGBDevice.getModel())) {
-                                    if (baseName.equals(PebbleProtocol.UUID_WORKOUT.toString())) {
-                                        cachedAppList.add(new GBDeviceApp(PebbleProtocol.UUID_WORKOUT, "Workout (System)", "Pebble Inc.", "", GBDeviceApp.Type.APP_SYSTEM));
-                                        continue;
-                                    }
-                                }
-                                if (PebbleUtils.getFwMajor(mGBDevice.getFirmwareVersion()) >= 4) {
-                                    if (baseName.equals("3af858c3-16cb-4561-91e7-f1ad2df8725f")) {
-                                        cachedAppList.add(new GBDeviceApp(UUID.fromString(baseName), "Kickstart (System)", "Pebble Inc.", "", GBDeviceApp.Type.WATCHFACE_SYSTEM));
-                                    }
-                                    if (baseName.equals(PebbleProtocol.UUID_WEATHER.toString())) {
-                                        cachedAppList.add(new GBDeviceApp(PebbleProtocol.UUID_WEATHER, "Weather (System)", "Pebble Inc.", "", GBDeviceApp.Type.APP_SYSTEM));
-                                    }
-                                }
-                            }
                             if (uuids == null) {
                                 cachedAppList.add(new GBDeviceApp(UUID.fromString(baseName), baseName, "N/A", "", GBDeviceApp.Type.UNKNOWN));
                             }
@@ -351,7 +268,6 @@ public abstract class AbstractAppManagerFragment extends Fragment {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_REFRESH_APPLIST);
-        filter.addAction(QHYBRID_ACTION_DOWNLOADED_FILE);
 
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(mReceiver, filter);
 
@@ -413,13 +329,10 @@ public abstract class AbstractAppManagerFragment extends Fragment {
         appManagementTouchHelper.attachToRecyclerView(appListView);
 
         if ((watchfaceDesignerActivity != null) && (appListFabNew != null)) {
-            appListFabNew.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent startIntent = new Intent(getContext(), watchfaceDesignerActivity);
-                    startIntent.putExtra(GBDevice.EXTRA_DEVICE, mGBDevice);
-                    getContext().startActivity(startIntent);
-                }
+            appListFabNew.setOnClickListener(v -> {
+                Intent startIntent = new Intent(getContext(), watchfaceDesignerActivity);
+                startIntent.putExtra(GBDevice.EXTRA_DEVICE, mGBDevice);
+                getContext().startActivity(startIntent);
             });
             appListFabNew.show();
         }
@@ -468,42 +381,12 @@ public abstract class AbstractAppManagerFragment extends Fragment {
             menu.removeItem(R.id.appmanager_app_share);
             menu.removeItem(R.id.appmanager_app_delete_cache);
         }
-        if (!PebbleProtocol.UUID_PEBBLE_HEALTH.equals(selectedApp.getUUID())) {
-            menu.removeItem(R.id.appmanager_health_activate);
-            menu.removeItem(R.id.appmanager_health_deactivate);
-        }
-        if (!PebbleProtocol.UUID_WORKOUT.equals(selectedApp.getUUID())) {
-            menu.removeItem(R.id.appmanager_hrm_activate);
-            menu.removeItem(R.id.appmanager_hrm_deactivate);
-        }
-        if (!PebbleProtocol.UUID_WEATHER.equals(selectedApp.getUUID())) {
-            menu.removeItem(R.id.appmanager_weather_activate);
-            menu.removeItem(R.id.appmanager_weather_deactivate);
-            menu.removeItem(R.id.appmanager_weather_install_provider);
-        }
+
         if (selectedApp.getType() == GBDeviceApp.Type.APP_SYSTEM || selectedApp.getType() == GBDeviceApp.Type.WATCHFACE_SYSTEM) {
             menu.removeItem(R.id.appmanager_app_delete);
         }
         if (!selectedApp.isConfigurable()) {
             menu.removeItem(R.id.appmanager_app_configure);
-        }
-
-        if (PebbleProtocol.UUID_WEATHER.equals(selectedApp.getUUID())) {
-            PackageManager pm = getActivity().getPackageManager();
-            try {
-                pm.getPackageInfo("ru.gelin.android.weather.notification", PackageManager.GET_ACTIVITIES);
-                menu.removeItem(R.id.appmanager_weather_install_provider);
-            } catch (PackageManager.NameNotFoundException e) {
-                //menu.removeItem(R.id.appmanager_weather_activate);
-                //menu.removeItem(R.id.appmanager_weather_deactivate);
-            }
-        }
-
-        if ((mGBDevice.getType() != DeviceType.FOSSILQHYBRID) || (selectedApp.getType() != GBDeviceApp.Type.WATCHFACE)) {
-            menu.removeItem(R.id.appmanager_app_edit);
-        }
-        if ((mGBDevice.getType() != DeviceType.FOSSILQHYBRID) || (!selectedApp.isOnDevice()) || ((selectedApp.getType() != GBDeviceApp.Type.WATCHFACE) && (selectedApp.getType() != GBDeviceApp.Type.APP_GENERIC))) {
-            menu.removeItem(R.id.appmanager_app_download);
         }
 
         if (mGBDevice.getType() == DeviceType.PEBBLE) {

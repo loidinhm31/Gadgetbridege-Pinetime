@@ -117,7 +117,7 @@ public class NotificationListener extends NotificationListenerService {
     }};
 
     public static ArrayList<String> notificationStack = new ArrayList<>();
-    private static ArrayList<Integer> notificationsActive = new ArrayList<Integer>();
+    private static ArrayList<Integer> notificationsActive = new ArrayList<>();
 
     private long activeCallPostTime;
     private int mLastCallCommand = CallSpec.CALL_UNDEFINED;
@@ -854,7 +854,7 @@ public class NotificationListener extends NotificationListenerService {
 
         if (GBApplication.getPrefs().getString("notification_list_is_blacklist", "true").equals("true")) {
             if (GBApplication.appIsNotifBlacklisted(source)) {
-                LOG.info("Ignoring notification, application is blacklisted");
+                LOG.info(" blackIgnoring notification, application islisted");
                 return true;
             }
         } else {

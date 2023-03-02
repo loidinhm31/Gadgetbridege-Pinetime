@@ -65,6 +65,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.pebble.ble.PebbleLES
 import nodomain.freeyourgadget.gadgetbridge.service.serial.GBDeviceIoThread;
 import nodomain.freeyourgadget.gadgetbridge.service.serial.GBDeviceProtocol;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
+import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.PebbleUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import nodomain.freeyourgadget.gadgetbridge.util.WebViewSingleton;
@@ -472,7 +473,7 @@ class PebbleIoThread extends GBDeviceIoThread {
     private boolean evaluateGBDeviceEventPebble(GBDeviceEvent deviceEvent) {
 
         if (deviceEvent instanceof GBDeviceEventVersionInfo) {
-            if (prefs.getBoolean("datetime_synconconnect", true)) {
+            if (prefs.getBoolean(GBPrefs.DATETIME_SYNC_ON_CONNECT, true)) {
                 LOG.info("syncing time");
                 write(mPebbleProtocol.encodeSetTime());
             }

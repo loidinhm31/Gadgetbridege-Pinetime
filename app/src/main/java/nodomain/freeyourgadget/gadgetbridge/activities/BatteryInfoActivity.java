@@ -139,30 +139,24 @@ public class BatteryInfoActivity extends AbstractGBActivity {
         });
 
         //Button battery_status_calendar_button = findViewById(R.id.battery_status_calendar_button);
-        battery_status_date_to_layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        battery_status_date_to_layout.setOnClickListener(v -> {
 
-                final Calendar currentDate = Calendar.getInstance();
-                currentDate.setTimeInMillis(timeTo * 1000L);
-                Context context = getApplicationContext();
+            final Calendar currentDate = Calendar.getInstance();
+            currentDate.setTimeInMillis(timeTo * 1000L);
+            Context context = getApplicationContext();
 
-                if (context instanceof GBApplication) {
-                    new DatePickerDialog(BatteryInfoActivity.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            if (context instanceof GBApplication) {
+                new DatePickerDialog(BatteryInfoActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
 
-                            Calendar date = Calendar.getInstance();
-                            date.set(year, monthOfYear, dayOfMonth);
-                            timeTo = (int) (date.getTimeInMillis() / 1000);
-                            battery_status_date_to_text.setText(DateTimeUtils.formatDate(new Date(timeTo * 1000L)));
-                            battery_status_time_span_seekbar.setProgress(0);
-                            battery_status_time_span_seekbar.setProgress(1);
+                    Calendar date = Calendar.getInstance();
+                    date.set(year, monthOfYear, dayOfMonth);
+                    timeTo = (int) (date.getTimeInMillis() / 1000);
+                    battery_status_date_to_text.setText(DateTimeUtils.formatDate(new Date(timeTo * 1000L)));
+                    battery_status_time_span_seekbar.setProgress(0);
+                    battery_status_time_span_seekbar.setProgress(1);
 
-                            batteryInfoChartFragment.setDateAndGetData(gbDevice, batteryIndex, timeFrom, timeTo);
-                        }
-                    }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
-                }
+                    batteryInfoChartFragment.setDateAndGetData(gbDevice, batteryIndex, timeFrom, timeTo);
+                }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
             }
         });
 
@@ -171,7 +165,7 @@ public class BatteryInfoActivity extends AbstractGBActivity {
 
         ImageView battery_status_device_icon = findViewById(R.id.battery_status_device_icon);
         battery_status_device_icon.setImageResource(gbDevice.isInitialized() ? gbDevice.getType().getIcon() : gbDevice.getType().getDisabledIcon());
-        battery_status_battery_level_text = (TextView) findViewById(R.id.battery_status_battery_level);
+        battery_status_battery_level_text = findViewById(R.id.battery_status_battery_level);
         battery_status_device_name_text.setText(gbDevice.getAliasOrName());
 
         setBatteryLabels();

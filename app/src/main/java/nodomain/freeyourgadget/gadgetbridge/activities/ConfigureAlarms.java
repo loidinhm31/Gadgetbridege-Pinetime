@@ -46,7 +46,6 @@ import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.entities.User;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
-import nodomain.freeyourgadget.gadgetbridge.util.AlarmUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper;
 
 
@@ -77,7 +76,6 @@ public class ConfigureAlarms extends AbstractGBActivity {
         alarmsRecyclerView.setHasFixedSize(true);
         alarmsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         alarmsRecyclerView.setAdapter(mGBAlarmListAdapter);
-        updateAlarmsFromDB();
     }
 
     @Override
@@ -86,30 +84,6 @@ public class ConfigureAlarms extends AbstractGBActivity {
             sendAlarmsToDevice();
         }
         super.onPause();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQ_CONFIGURE_ALARM) {
-            avoidSendAlarmsToDevice = false;
-            updateAlarmsFromDB();
-        }
-    }
-
-    /**
-     * Reads the available alarms from the database and updates the view afterwards.
-     */
-    private void updateAlarmsFromDB() {
-        List<Alarm> alarms = DBHelper.getAlarms(getGbDevice());
-        if (alarms.isEmpty()) {
-            alarms = AlarmUtils.readAlarmsFromPrefs(getGbDevice());
-            storeMigratedAlarms(alarms);
-        }
-        addMissingAlarms(alarms);
-
-        mGBAlarmListAdapter.setAlarmList(alarms);
-        mGBAlarmListAdapter.notifyDataSetChanged();
     }
 
     private void storeMigratedAlarms(List<Alarm> alarms) {
@@ -180,13 +154,6 @@ public class ConfigureAlarms extends AbstractGBActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
-            switch (action) {
-                case DeviceService.ACTION_SAVE_ALARMS: {
-                    updateAlarmsFromDB();
-                    break;
-                }
-            }
         }
     };
 

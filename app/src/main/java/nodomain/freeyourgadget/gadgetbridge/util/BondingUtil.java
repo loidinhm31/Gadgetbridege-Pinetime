@@ -17,8 +17,11 @@
 package nodomain.freeyourgadget.gadgetbridge.util;
 
 import static androidx.core.app.ActivityCompat.startIntentSenderForResult;
+import static nodomain.freeyourgadget.gadgetbridge.GBApplication.getContext;
 import static nodomain.freeyourgadget.gadgetbridge.util.GB.toast;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothClass;
@@ -28,7 +31,6 @@ import android.companion.BluetoothDeviceFilter;
 import android.companion.CompanionDeviceManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Build;
@@ -46,7 +48,6 @@ import java.util.Locale;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
-import nodomain.freeyourgadget.gadgetbridge.devices.miband.MiBandConst;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceCandidate;
 
@@ -85,6 +86,7 @@ public class BondingUtil {
      */
     public static BroadcastReceiver getBondingReceiver(final BondingInterface bondingInterface) {
         return new BroadcastReceiver() {
+            @SuppressLint("MissingPermission")
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
@@ -98,11 +100,8 @@ public class BondingUtil {
                             case BluetoothDevice.BOND_BONDED: {
                                 LOG.info("Bonded with " + device.getAddress());
                                 //noinspection StatementWithEmptyBody
-                                if (isLePebble(device)) {
-                                    // Do not initiate connection to LE Pebble!
-                                } else {
-                                    attemptToFirstConnect(bondingInterface.getCurrentTarget().getDevice());
-                                }
+                                attemptToFirstConnect(bondingInterface.getCurrentTarget().getDevice());
+
                                 return;
                             }
                             case BluetoothDevice.BOND_NONE: {
@@ -132,13 +131,11 @@ public class BondingUtil {
      */
     public static void attemptToFirstConnect(final BluetoothDevice candidate) {
         Looper mainLooper = Looper.getMainLooper();
-        new Handler(mainLooper).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                GBApplication.deviceService().disconnect();
-                GBDevice device = DeviceHelper.getInstance().toSupportedDevice(candidate);
-                connectToGBDevice(device);
-            }
+        new Handler(mainLooper).postDelayed(() -> {
+            GBApplication.deviceService().disconnect();
+
+            GBDevice device = DeviceHelper.getInstance().toSupportedDevice(getContext(), candidate);
+            connectToGBDevice(device);
         }, DELAY_AFTER_BONDING);
     }
 
@@ -151,19 +148,6 @@ public class BondingUtil {
         } else {
             GB.toast("Unable to connect, can't recognize the device type", Toast.LENGTH_LONG, GB.ERROR);
         }
-    }
-
-
-    /**
-     * Returns true if GB should pair
-     */
-    public static boolean shouldUseBonding() {
-        // TODO: Migrate to generic "should even try bonding" preference key
-
-        // There are connection problems on certain Galaxy S devices at least
-        // try to connect without BT pairing (bonding)
-        Prefs prefs = GBApplication.getPrefs();
-        return prefs.getPreferences().getBoolean(MiBandConst.PREF_MIBAND_SETUP_BT_PAIRING, true);
     }
 
     /**
@@ -191,7 +175,7 @@ public class BondingUtil {
     public static void initiateCorrectBonding(final BondingInterface bondingInterface, final GBDeviceCandidate deviceCandidate) {
         int bondingStyle = DeviceHelper.getInstance().getCoordinator(deviceCandidate).getBondingStyle();
         if (bondingStyle == DeviceCoordinator.BONDING_STYLE_NONE ||
-            bondingStyle == DeviceCoordinator.BONDING_STYLE_LAZY ) {
+                bondingStyle == DeviceCoordinator.BONDING_STYLE_LAZY) {
             // Do nothing
             return;
         } else if (bondingStyle == DeviceCoordinator.BONDING_STYLE_ASK) {
@@ -199,18 +183,8 @@ public class BondingUtil {
                     .setCancelable(true)
                     .setTitle(bondingInterface.getContext().getString(R.string.discovery_pair_title, deviceCandidate.getName()))
                     .setMessage(bondingInterface.getContext().getString(R.string.discovery_pair_question))
-                    .setPositiveButton(bondingInterface.getContext().getString(R.string.discovery_yes_pair), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            BondingUtil.tryBondThenComplete(bondingInterface, deviceCandidate);
-                        }
-                    })
-                    .setNegativeButton(R.string.discovery_dont_pair, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            BondingUtil.connectThenComplete(bondingInterface, deviceCandidate);
-                        }
-                    })
+                    .setPositiveButton(bondingInterface.getContext().getString(R.string.discovery_yes_pair), (dialog, which) -> BondingUtil.tryBondThenComplete(bondingInterface, deviceCandidate))
+                    .setNegativeButton(R.string.discovery_dont_pair, (dialog, which) -> BondingUtil.connectThenComplete(bondingInterface, deviceCandidate))
                     .show();
         } else {
             BondingUtil.tryBondThenComplete(bondingInterface, deviceCandidate);
@@ -222,6 +196,7 @@ public class BondingUtil {
      * Tries to create a BluetoothDevice bond
      * Do not call directly, use createBond(Activity, GBDeviceCandidate) instead!
      */
+    @SuppressLint("MissingPermission")
     private static void bluetoothBond(BondingInterface context, GBDeviceCandidate candidate) {
         BluetoothDevice device = candidate.getDevice();
         if (device.createBond()) {
@@ -261,6 +236,7 @@ public class BondingUtil {
     /**
      * Handles the activity result and checks if there's anything CompanionDeviceManager-related going on
      */
+    @SuppressLint("MissingPermission")
     public static void handleActivityResult(BondingInterface bondingInterface, int requestCode, int resultCode, Intent data) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 requestCode == BondingUtil.REQUEST_CODE &&
@@ -286,6 +262,7 @@ public class BondingUtil {
     /**
      * Checks if device is LE Pebble
      */
+    @SuppressLint("MissingPermission")
     public static boolean isLePebble(BluetoothDevice device) {
         return (device.getType() == BluetoothDevice.DEVICE_TYPE_DUAL || device.getType() == BluetoothDevice.DEVICE_TYPE_LE) &&
                 (device.getName().startsWith("Pebble-LE ") || device.getName().startsWith("Pebble Time LE "));
@@ -353,11 +330,12 @@ public class BondingUtil {
     /**
      * Use this function to initiate bonding to a GBDeviceCandidate
      */
+    @SuppressLint("MissingPermission")
     public static void tryBondThenComplete(BondingInterface bondingInterface, GBDeviceCandidate deviceCandidate) {
         bondingInterface.registerBroadcastReceivers();
         BluetoothDevice device = deviceCandidate.getDevice();
 
-        int bondState = device.getBondState();
+        @SuppressLint("MissingPermission") int bondState = device.getBondState();
         if (bondState == BluetoothDevice.BOND_BONDED) {
             GB.toast(bondingInterface.getContext().getString(R.string.pairing_already_bonded, device.getName(), device.getAddress()), Toast.LENGTH_SHORT, GB.INFO);
             //noinspection StatementWithEmptyBody

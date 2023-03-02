@@ -31,7 +31,6 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
-import nodomain.freeyourgadget.gadgetbridge.devices.miband.MiBandConst;
 import nodomain.freeyourgadget.gadgetbridge.entities.Alarm;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
@@ -73,7 +72,7 @@ public class AlarmUtils {
     }
 
     /**
-     * Returns a repetition mask suitable for {@link Alarm#repetition}
+     * Returns a repetition mask suitable for
      * @param mon whether the alarm shall repeat every Monday
      * @param tue whether the alarm shall repeat every Tuesday
      * @param wed whether the alarm shall repeat every Wednesday
@@ -92,33 +91,6 @@ public class AlarmUtils {
                 (sat ? Alarm.ALARM_SAT : 0) |
                 (sun ? Alarm.ALARM_SUN : 0);
         return repetitionMask;
-    }
-
-    /**
-     * Just for backward compatibility, do not call in new code.
-     * @param gbDevice
-     * @return
-     * @deprecated use {@link DBHelper#getAlarms(GBDevice)} instead
-     */
-    @NonNull
-    public static List<Alarm> readAlarmsFromPrefs(GBDevice gbDevice) {
-        Prefs prefs = GBApplication.getPrefs();
-        Set<String> stringAlarms = prefs.getStringSet(MiBandConst.PREF_MIBAND_ALARMS, new HashSet<String>());
-        List<Alarm> alarms = new ArrayList<>(stringAlarms.size());
-
-        try (DBHandler db = GBApplication.acquireDB()) {
-            DaoSession daoSession = db.getDaoSession();
-            User user = DBHelper.getUser(daoSession);
-            Device device = DBHelper.getDevice(gbDevice, daoSession);
-            for (String stringAlarm : stringAlarms) {
-                alarms.add(createAlarmFromPreference(stringAlarm, device, user));
-            }
-            Collections.sort(alarms, AlarmUtils.createComparator());
-            return alarms;
-        } catch (Exception e) {
-            GB.log("Error accessing database", GB.ERROR, e);
-            return Collections.emptyList();
-        }
     }
 
     private static Alarm createAlarmFromPreference(String fromPreferences, Device device, User user) {

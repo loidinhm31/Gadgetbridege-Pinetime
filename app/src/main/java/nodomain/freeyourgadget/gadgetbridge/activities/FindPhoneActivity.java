@@ -95,12 +95,7 @@ public class FindPhoneActivity extends AbstractGBActivity {
         registerReceiver(mReceiver, filter); // for ACTION_FOUND
 
         Button foundButton = (Button) findViewById(R.id.foundbutton);
-        foundButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        foundButton.setOnClickListener(v -> finish());
 
         GB.removeNotification(GB.NOTIFICATION_ID_PHONE_FIND, this);
 

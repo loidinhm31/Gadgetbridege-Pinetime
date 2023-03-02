@@ -161,32 +161,26 @@ public class ActivityListingDashboard extends DialogFragment {
 
             }
         });
-        battery_status_date_to_layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar currentDate = Calendar.getInstance();
-                currentDate.setTimeInMillis(timeTo * 1000L);
+        battery_status_date_to_layout.setOnClickListener(v -> {
+            final Calendar currentDate = Calendar.getInstance();
+            currentDate.setTimeInMillis(timeTo * 1000L);
 
-                new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            new DatePickerDialog(getContext(), (view1, year, monthOfYear, dayOfMonth) -> {
 
-                        Calendar date = Calendar.getInstance();
-                        date.set(year, monthOfYear, dayOfMonth);
-                        int time = (int) (date.getTimeInMillis() / 1000);
-                        Calendar day = Calendar.getInstance();
-                        day.setTimeInMillis(time * 1000L);
-                        day.set(Calendar.HOUR_OF_DAY, 23);
-                        day.set(Calendar.MINUTE, 59);
-                        day.set(Calendar.SECOND, 59);
-                        timeTo = (int) (day.getTimeInMillis() / 1000);
+                Calendar date = Calendar.getInstance();
+                date.set(year, monthOfYear, dayOfMonth);
+                int time1 = (int) (date.getTimeInMillis() / 1000);
+                Calendar day1 = Calendar.getInstance();
+                day1.setTimeInMillis(time1 * 1000L);
+                day1.set(Calendar.HOUR_OF_DAY, 23);
+                day1.set(Calendar.MINUTE, 59);
+                day1.set(Calendar.SECOND, 59);
+                timeTo = (int) (day1.getTimeInMillis() / 1000);
 
-                        battery_status_date_to_text.setText(DateTimeUtils.formatDate(new Date(timeTo * 1000L)));
-                        battery_status_time_span_seekbar.setProgress(0);
-                        battery_status_time_span_seekbar.setProgress(1);
-                    }
-                }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
-            }
+                battery_status_date_to_text.setText(DateTimeUtils.formatDate(new Date(timeTo * 1000L)));
+                battery_status_time_span_seekbar.setProgress(0);
+                battery_status_time_span_seekbar.setProgress(1);
+            }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
         });
         battery_status_time_span_seekbar.setProgress(2);
     }

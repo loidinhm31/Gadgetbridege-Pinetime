@@ -195,13 +195,10 @@ public class FwAppInstallerActivity extends AbstractGBActivity implements Instal
         filter.addAction(GB.ACTION_SET_INFO_TEXT);
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
 
-        installButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setInstallEnabled(false);
-                installHandler.onStartInstall(device);
-                GBApplication.deviceService(device).onInstallApp(uri);
-            }
+        installButton.setOnClickListener(v -> {
+            setInstallEnabled(false);
+            installHandler.onStartInstall(device);
+            GBApplication.deviceService(device).onInstallApp(uri);
         });
 
         uri = getIntent().getData();

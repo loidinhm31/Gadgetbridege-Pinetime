@@ -50,21 +50,13 @@ public class GpxReceiverActivity extends AbstractGBActivity {
         TextView gpx_receiver_files_listing = findViewById(R.id.gpx_receiver_files_listing);
         TextView gpx_receiver_received_label = findViewById(R.id.gpx_receiver_received_label);
 
-        gpx_receiver_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        gpx_receiver_cancel.setOnClickListener(view -> finish());
 
-        gpx_receiver_ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                for (FileToProcess fileToProcess : fileList) {
-                    save_file(fileToProcess.source, fileToProcess.destination);
-                }
-                finish();
+        gpx_receiver_ok.setOnClickListener(view -> {
+            for (FileToProcess fileToProcess : fileList) {
+                save_file(fileToProcess.source, fileToProcess.destination);
             }
+            finish();
         });
 
         final Intent intent = getIntent();

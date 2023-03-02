@@ -158,12 +158,7 @@ public class NotificationFilterActivity extends AbstractGBActivity {
 
         mButtonSave = findViewById(R.id.buttonSaveFilter);
 
-        mButtonSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveFilter();
-            }
-        });
+        mButtonSave.setOnClickListener(view -> saveFilter());
     }
 
     private void saveFilter() {
